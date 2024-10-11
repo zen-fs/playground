@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>ZenFS Playground</title>
+		<link rel="stylesheet" href="styles.css" />
+	</head>
+	<body>
+		<div id="nav">
+			<button>Config</button>
+			<button>Explorer</button>
+			<button>Terminal</button>
+			<input id="location" value="/" placeholder="Path" />
+		</div>
+
+		<ul id="config" class="tab">
+			<template id="mount">
+				<li class="mount"></li>
+			</template>
+		</ul>
+
+		<ul id="explorer" class="tab" style="display: none">
+			<template id="entry">
+				<li class="entry"></li>
+			</template>
+		</ul>
+
+		<script type="module" src="index.js"></script>
+	</body>
+</html>
