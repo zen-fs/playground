@@ -11,6 +11,14 @@ ul {
 	list-style: none;
 }
 
+button {
+	background-color: #444;
+	border: 1px solid #888;
+	border-radius: 0.5em;
+	padding: 0.5em;
+	cursor: pointer;
+}
+
 #location {
 	padding: 0.25em 1em;
 	border-radius: 0.5em;
@@ -27,26 +35,25 @@ ul {
 	display: flex;
 	gap: 0.25em;
 	align-items: center;
-}
 
-#nav > * {
-	padding: 0.5em 1em;
-	background-color: #444;
-	border: 1px solid #888;
-}
+	button {
+		border-radius: 0.5em 0.5em 0 0;
+	}
 
-#nav > button {
-	border-radius: 0.5em 0.5em 0 0;
-	cursor: pointer;
-}
+	button:hover {
+		background-color: #999;
+	}
 
-#nav button:hover {
-	background-color: #999;
-}
+	button.active {
+		background-color: #222;
+		border-bottom: none;
+	}
 
-#nav button.active {
-	background-color: #999;
-	border-bottom: none;
+	* {
+		padding: 0.5em 1em;
+		background-color: #444;
+		border: 1px solid #888;
+	}
 }
 
 .tab {
@@ -54,14 +61,35 @@ ul {
 	border-radius: 1em;
 	position: fixed;
 	left: 0.5em;
-	top: 2em;
+	top: 3em;
 	width: calc(100% - 4em);
 	height: calc(100% - 5em);
+	margin: 0;
+
+	.title {
+		position: absolute;
+		left: 1em;
+		top: 0.5em;
+	}
+
+	:not(.title) {
+		position: relative;
+		top: 1.5em;
+	}
 }
 
-#entries {
-	position: fixed;
-	inset: 2em 1em 1em 10em;
+#config {
+	.add {
+		position: absolute;
+		left: 1em;
+		bottom: 1em;
+		width: 3em;
+	}
+}
+
+#terminal-container {
+	position: absolute;
+	inset: 1em;
 }
 
 li.entry {
