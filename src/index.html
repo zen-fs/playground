@@ -18,10 +18,17 @@
 			<strong class="title">Configuration</strong>
 
 			<template id="mount">
-				<li class="mount"></li>
+				<li class="mount">
+					<input type="hidden" name="id" />
+					<input type="text" name="path" placeholder="Mount path" />
+					<select name="backend" placeholder="">
+						<option value="" disabled selected>Select backend</option>
+					</select>
+				</li>
 			</template>
 
 			<button class="add">+</button>
+			<button class="update">Save and update</button>
 		</ul>
 
 		<ul id="explorer" class="tab" style="display: none">
