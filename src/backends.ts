@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/only-throw-error */
 import type { Backend, OptionsOf } from '@zenfs/core';
-import { Fetch, InMemory, Overlay, Port } from '@zenfs/core';
+import { Fetch, InMemory, mounts, Overlay, Port } from '@zenfs/core';
 import { WebAccess, WebStorage, IndexedDB } from '@zenfs/dom';
 import { Iso } from '@zenfs/iso';
 import { Zip } from '@zenfs/zip';
@@ -43,8 +43,18 @@ export const backends = [
 	{
 		backend: Overlay,
 		inputs: {
-			readable: { placeholder: 'Readable mount' },
-			writable: { placeholder: 'Writable mount' },
+			readable: {
+				placeholder: 'Readable mount',
+				parse(input: HTMLInputElement) {
+					return mounts.get(input.value);
+				},
+			},
+			writable: {
+				placeholder: 'Writable mount',
+				parse(input: HTMLInputElement) {
+					return mounts.get(input.value);
+				},
+			},
 		},
 	},
 	{
