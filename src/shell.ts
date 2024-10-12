@@ -108,10 +108,6 @@ terminal.onData(data => {
 	const promptLength = prompt().length;
 	const x = terminal.buffer.active.cursorX - promptLength;
 	switch (data) {
-		case '\x1b[D':
-		case '\x1b[C':
-			terminal.write(data);
-			break;
 		case 'ArrowUp':
 		case '\x1b[A':
 			clear();
@@ -128,6 +124,22 @@ terminal.onData(data => {
 			}
 			terminal.write(input);
 			break;
+		case '\x1b[D':
+			if (x > 0) {
+				terminal.write(data);
+			}
+			break;
+		case '\x1b[C':
+			if (x < currentInput.length) {
+				terminal.write(data);
+			}
+			break;
+		case '\x1b[F':
+			terminal.write(`\x1b[${promptLength + currentInput.length + 1}G`);
+			break;
+		case '\x1b[H':
+			terminal.write(`\x1b[${promptLength + 1}G`);
+			break;
 		case '\x7f':
 			if (x <= 0) {
 				return;
@@ -141,7 +153,7 @@ terminal.onData(data => {
 			}
 			index = -1;
 			input = '';
-			clear();
+			terminal.write('\r\n' + prompt());
 			break;
 		default:
 			terminal.write(data);
