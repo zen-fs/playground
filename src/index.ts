@@ -2,11 +2,10 @@
 import '@xterm/xterm/css/xterm.css';
 import './styles.css';
 
-import { FitAddon } from '@xterm/addon-fit';
-import { Terminal } from '@xterm/xterm';
 import $ from 'jquery';
 import { randomHex, type Entries } from 'utilium';
 import { backends, type BackendInput, type BackendInputElement } from './backends.js';
+import './shell.js';
 import { instantiateTemplate } from './templates.js';
 
 // Switching tabs
@@ -58,9 +57,3 @@ $('#config .add').on('click', () => {
 });
 
 $('#config .update').on('click', () => {});
-
-const terminal = new Terminal();
-const fitAddon = new FitAddon();
-terminal.loadAddon(fitAddon);
-terminal.open($('#terminal-container')[0]);
-fitAddon.fit();
