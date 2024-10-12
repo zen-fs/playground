@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unsafe-argument,@typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import '@xterm/xterm/css/xterm.css';
 import './styles.css';
 
@@ -6,7 +6,7 @@ import { FitAddon } from '@xterm/addon-fit';
 import { Terminal } from '@xterm/xterm';
 import $ from 'jquery';
 import { randomHex, type Entries } from 'utilium';
-import { backends } from './backends.js';
+import { backends, type BackendInput, type BackendInputElement } from './backends.js';
 import { instantiateTemplate } from './templates.js';
 
 // Switching tabs
@@ -24,7 +24,7 @@ $('#config .add').on('click', () => {
 	const select = li.find('select');
 
 	select.on('change', () => {
-		li.find('input').filter('[backend_specific]').remove();
+		li.find('[backend_specific]').remove();
 		const backend = backends.find(({ backend }) => backend.name == select.val());
 		if (!backend) {
 			return;
@@ -34,9 +34,20 @@ $('#config .add').on('click', () => {
 				throw new Error();
 			}
 
-			$('<input />')
-				.attr({ ...data, name, backend_specific: true })
-				.appendTo(li);
+			const d = data as BackendInput;
+
+			const input = $(d.select ? '<select></select>' : '<input />').attr({ ...d, select: null, parse: null, name, backend_specific: true });
+			if (d.select) {
+				for (const [value, text] of Object.entries(d.select)) {
+					const opt = $('<option />').text(text).val(value);
+					if (value == '') {
+						opt.attr({ disabled: true, selected: true });
+					}
+					opt.appendTo(input);
+				}
+			}
+			input.appendTo(li);
+			d.ready?.(input[0] as BackendInputElement);
 		}
 	});
 
