@@ -60,13 +60,13 @@ export const backends = [
 	{
 		backend: Port,
 		inputs: {
-			port_file: {
+			/*port_file: {
 				type: 'file',
 				parse(input: HTMLInputElement) {
 					const url = URL.createObjectURL(input.files![0]);
 					$(input.parentElement!).find('.port').val(url).attr('disabled', 1);
 				},
-			},
+			},*/
 			port: {
 				placeholder: 'Port',
 				parse(input: HTMLInputElement): Worker {
