@@ -22,7 +22,7 @@ function ls(dir: string = '.') {
 
 const helpText = `
 Virtual FS shell.\r
-Available commands: help, ls, cp, cd, mv, rm, cat, stat, pwd, exit/quit\r
+Available commands: help, ls, cp, cd, mv, rm, cat, stat, pwd, mkdir, exit/quit\r
 `;
 
 function prompt(): string {
@@ -53,11 +53,11 @@ let currentInput: string = '';
 const inputs: string[] = [];
 
 function exec(): void {
-	if (input == '') {
+	if (currentInput == '') {
 		return;
 	}
 
-	const [command, ...args] = input.trim().split(' ');
+	const [command, ...args] = currentInput.trim().split(' ');
 	try {
 		switch (command) {
 			case 'help':
@@ -86,6 +86,9 @@ function exec(): void {
 				break;
 			case 'pwd':
 				terminal.writeln(cwd);
+				break;
+			case 'mkdir':
+				fs.mkdirSync(args[0]);
 				break;
 			case 'exit':
 			case 'quit':
@@ -153,13 +156,13 @@ terminal.onData(data => {
 			}
 			index = -1;
 			input = '';
-			terminal.write('\r\n' + prompt());
+			terminal.write('\r\n');
+			exec();
+			terminal.write(prompt());
 			break;
 		default:
 			terminal.write(data);
 			input = input.slice(0, x) + data + input.slice(x);
 	}
 });
-
-terminal.onLineFeed(exec);
 clear();
