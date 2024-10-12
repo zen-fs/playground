@@ -97,11 +97,10 @@ select {
 		padding: 0.5em 1em;
 	}
 
-	.update {
+	.right {
 		position: absolute;
 		right: 1em;
 		bottom: 1em;
-		padding: 0.5em 1em;
 	}
 }
 

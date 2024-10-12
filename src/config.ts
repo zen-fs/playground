@@ -7,6 +7,7 @@ import { Zip } from '@zenfs/zip';
 import $ from 'jquery';
 import { instantiateTemplate } from './templates.js';
 import { randomHex, type Entries } from 'utilium';
+import { download, upload } from 'utilium/dom.js';
 
 export type HTMLAttributeName = 'id' | 'class' | 'style' | 'href' | 'src' | 'alt' | 'title' | 'placeholder';
 
@@ -149,7 +150,7 @@ export const backends = [
 	},
 ] satisfies BackendOption<Backend>[];
 
-$('#config .add').on('click', () => {
+function createNewMountConfig() {
 	const li = instantiateTemplate('#mount').find('li');
 	const id = randomHex(16);
 	li.find('input[name=id]').val(id);
@@ -187,7 +188,8 @@ $('#config .add').on('click', () => {
 		$('<option />').text(backend.name).val(backend.name).appendTo(select);
 	}
 	li.appendTo('#config');
-});
+	return li;
+}
 
 function toFSTable(configs: Record<string, string>[]): string {
 	return configs
@@ -197,14 +199,27 @@ function toFSTable(configs: Record<string, string>[]): string {
 				path,
 				backend,
 				Object.entries(config)
-					.map(([k, v]) => `${k}=${JSON.stringify(v)}`)
-					.join(';'),
+					.map(([k, v]) => k + '=' + v)
+					.join(','),
 			].join('\t')
 		)
 		.join('\n');
 }
 
-$('#config .update').on('click', () => {
+function fromFSTable(table: string): Record<string, string>[] {
+	return table.split('\n').map<Record<string, string>>(line => {
+		const [id, path, backend, options] = line.split(/\s+/);
+
+		return {
+			...(Object.fromEntries(options.split(',').map(entry => entry.split('='))) as object),
+			id,
+			path,
+			backend,
+		};
+	});
+}
+
+function parseConfig(): Record<string, string>[] {
 	const configs: Record<string, string>[] = [];
 
 	$('#config')
@@ -217,6 +232,37 @@ $('#config .update').on('click', () => {
 					configs[i][input.name] = input.value;
 				});
 		});
+	return configs;
+}
+
+function loadConfig(configs: Record<string, string>[]): void {
+	$('#config').find('li').remove();
+
+	for (const config of configs) {
+		const li = createNewMountConfig();
+		li.find('[name=backend]').val(config.backend).trigger('change');
+
+		for (const [key, value] of Object.entries(config).sort(([key]) => (key == 'backend' ? -1 : 1))) {
+			li.find(`[name=${key}]`).val(value);
+		}
+	}
+}
+
+$('#config .add').on('click', createNewMountConfig);
+
+$('#config .update').on('click', () => {
+	const configs = parseConfig();
 	console.log(configs);
 	console.log(toFSTable(configs));
+});
+
+$('#config .download').on('click', () => {
+	const configs = parseConfig();
+	download(toFSTable(configs), 'fstab');
+});
+
+$('#config .upload').on('click', () => {
+	void upload()
+		.then(response => response.text())
+		.then(table => loadConfig(fromFSTable(table)));
 });
