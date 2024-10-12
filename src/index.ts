@@ -1,10 +1,9 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import '@xterm/xterm/css/xterm.css';
 import './styles.css';
 
 import $ from 'jquery';
 import { randomHex, type Entries } from 'utilium';
-import { backends, type BackendInput, type BackendInputElement } from './backends.js';
+import { backends, type BackendInput, type BackendInputElement } from './config.js';
 import './shell.js';
 import { instantiateTemplate } from './templates.js';
 
