@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/only-throw-error */
 import type { Backend, OptionsOf } from '@zenfs/core';
-import { Fetch, InMemory, mounts, Overlay, Port } from '@zenfs/core';
+import fs, { Fetch, InMemory, mounts, Overlay, Port } from '@zenfs/core';
 import { WebAccess, WebStorage, IndexedDB } from '@zenfs/dom';
 import { Iso } from '@zenfs/iso';
 import { Zip } from '@zenfs/zip';
@@ -252,8 +252,10 @@ $('#config .add').on('click', createNewMountConfig);
 
 $('#config .update').on('click', () => {
 	const configs = parseConfig();
-	console.log(configs);
-	console.log(toFSTable(configs));
+	if (!fs.existsSync('/etc')) {
+		fs.mkdirSync('/etc');
+	}
+	fs.writeFileSync('/etc/fstab', toFSTable(configs));
 });
 
 $('#config .download').on('click', () => {
