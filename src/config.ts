@@ -189,4 +189,34 @@ $('#config .add').on('click', () => {
 	li.appendTo('#config');
 });
 
-$('#config .update').on('click', () => {});
+function toFSTable(configs: Record<string, string>[]): string {
+	return configs
+		.map(({ id, backend, path, ...config }) =>
+			[
+				id,
+				path,
+				backend,
+				Object.entries(config)
+					.map(([k, v]) => `${k}=${JSON.stringify(v)}`)
+					.join(';'),
+			].join('\t')
+		)
+		.join('\n');
+}
+
+$('#config .update').on('click', () => {
+	const configs: Record<string, string>[] = [];
+
+	$('#config')
+		.find('li')
+		.each((i: number, li: HTMLLIElement) => {
+			configs[i] = {};
+			$(li)
+				.find<HTMLInputElement | HTMLSelectElement>('[name]')
+				.each((_: number, input) => {
+					configs[i][input.name] = input.value;
+				});
+		});
+	console.log(configs);
+	console.log(toFSTable(configs));
+});

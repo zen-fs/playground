@@ -3,6 +3,7 @@ import './styles.css';
 
 import $ from 'jquery';
 import './config.js';
+import './explorer.js';
 import './shell.js';
 
 // Switching tabs
