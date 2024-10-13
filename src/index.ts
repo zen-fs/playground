@@ -3,6 +3,7 @@ import './styles.css';
 
 import $ from 'jquery';
 import './config.js';
+import './editor.js';
 import { update, location } from './explorer.js';
 import './shell.js';
 import { cwd, isAbsolute } from '@zenfs/core/emulation/path.js';
