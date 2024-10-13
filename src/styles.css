@@ -111,6 +111,7 @@ select {
 		display: flex;
 		align-items: center;
 		gap: 1em;
+		margin-bottom: 0.25em;
 
 		p {
 			white-space: nowrap;
