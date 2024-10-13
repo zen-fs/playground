@@ -35,6 +35,9 @@ const config: BuildOptions = {
 		$commands: JSON.stringify(Object.fromEntries(readdirSync('commands').map(name => ['/' + name, readFileSync('commands/' + name, 'utf-8')]))),
 		$commands_index: readFileSync('build/index.json', 'utf-8'),
 	},
+	logOverride: {
+		'direct-eval': 'info',
+	},
 };
 
 switch (mode) {
