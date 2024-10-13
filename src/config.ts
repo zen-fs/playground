@@ -250,7 +250,7 @@ function loadConfig(configs: Record<string, string>[]): void {
 
 $('#config .add').on('click', createNewMountConfig);
 
-$('#config .update').on('click', () => {
+$('#config .save').on('click', () => {
 	const configs = parseConfig();
 	if (!fs.existsSync('/etc')) {
 		fs.mkdirSync('/etc');
