@@ -64,7 +64,6 @@ function exec(line: string): void {
 const shell = createShell({
 	terminal,
 	get prompt(): string {
-		console.log(path.cwd);
 		return `[${chalk.green(path.cwd == '/root' ? '~' : path.basename(path.cwd) || '/')}]$ `;
 	},
 	/**
@@ -78,5 +77,5 @@ const shell = createShell({
 		}
 	},
 });
-(globalThis as typeof globalThis & { shell: typeof shell }).shell = shell;
+Object.assign(globalThis, { shell });
 terminal.write(shell.prompt);
