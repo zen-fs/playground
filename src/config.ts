@@ -248,14 +248,29 @@ function loadConfig(configs: Record<string, string>[]): void {
 	}
 }
 
-$('#config .add').on('click', createNewMountConfig);
-
-$('#config .save').on('click', () => {
-	const configs = parseConfig();
+function saveConfig(configs: Record<string, string>[], noLocalStorage: boolean = false): void {
 	if (!fs.existsSync('/etc')) {
 		fs.mkdirSync('/etc');
 	}
-	fs.writeFileSync('/etc/fstab', toFSTable(configs));
+	const table = toFSTable(configs);
+	if (!noLocalStorage) localStorage.fstab = table;
+	fs.writeFileSync('/etc/fstab', table);
+}
+
+$<HTMLInputElement>('#config .auto-load')[0].checked = 'autoLoad' in localStorage;
+
+if (localStorage.autoLoad && localStorage.fstab) {
+	const config = fromFSTable(localStorage.getItem('fstab')!);
+	loadConfig(config);
+	saveConfig(config, true);
+}
+
+$('#config .add').on('click', createNewMountConfig);
+
+$('#config .upload').on('click', () => {
+	void upload()
+		.then(response => response.text())
+		.then(table => loadConfig(fromFSTable(table)));
 });
 
 $('#config .download').on('click', () => {
@@ -263,8 +278,14 @@ $('#config .download').on('click', () => {
 	download(toFSTable(configs), 'fstab');
 });
 
-$('#config .upload').on('click', () => {
-	void upload()
-		.then(response => response.text())
-		.then(table => loadConfig(fromFSTable(table)));
+$('#config .save').on('click', () => {
+	saveConfig(parseConfig());
+});
+
+$<HTMLInputElement>('#config .auto-load').on('change', e => {
+	if (e.target.checked) {
+		localStorage.autoLoad = 1;
+	} else {
+		localStorage.removeItem('autoLoad');
+	}
 });

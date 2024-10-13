@@ -1,5 +1,6 @@
 * {
 	color: #bbb;
+	color-scheme: dark;
 }
 
 body {
@@ -26,6 +27,7 @@ select {
 	border: 1px solid #888;
 	border-radius: 0.25em;
 	padding: 0.25em;
+	accent-color: #bbb;
 }
 
 textarea:focus,
@@ -76,7 +78,7 @@ input:focus {
 	inset: 3em 0.5em 0.5em;
 	margin: 0;
 
-	.title {
+	.top {
 		position: absolute;
 		left: 1em;
 		top: 0.5em;
@@ -98,10 +100,15 @@ input:focus {
 		padding: 0.5em 1em;
 	}
 
-	.right {
+	.manage {
 		position: absolute;
 		right: 1em;
 		bottom: 1em;
+	}
+
+	li {
+		position: relative;
+		top: 6em;
 	}
 }
 

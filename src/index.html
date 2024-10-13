@@ -16,7 +16,11 @@
 		</div>
 
 		<ul id="config" class="tab">
-			<strong class="title">Configuration</strong>
+			<div class="top">
+				<p><strong>Configuration</strong></p>
+				<input type="checkbox" name="auto-load" class="auto-load" />
+				<label for="autoload">Auto-load</label>
+			</div>
 
 			<template id="mount">
 				<li class="mount">
@@ -29,7 +33,7 @@
 			</template>
 
 			<button class="add">+</button>
-			<div class="right">
+			<div class="manage">
 				<button class="upload">Upload</button>
 				<button class="download">Download</button>
 				<button class="save">Save</button>
@@ -37,7 +41,7 @@
 		</ul>
 
 		<ul id="explorer" class="tab" style="display: none">
-			<strong class="title">Explorer</strong>
+			<strong class="top">Explorer</strong>
 
 			<li class="header">
 				<p class="name">Name</p>
@@ -55,7 +59,7 @@
 		</ul>
 
 		<div id="editor" class="tab" style="display: none">
-			<strong class="title">Editor</strong>
+			<strong class="top">Editor</strong>
 
 			<textarea class="content"></textarea>
 		</div>
