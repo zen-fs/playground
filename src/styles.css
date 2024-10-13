@@ -55,11 +55,10 @@ input:focus {
 	}
 
 	button:hover {
-		background-color: #999;
+		background-color: #777;
 	}
 
 	button.active {
-		background-color: #222;
 		border-bottom: none;
 	}
 

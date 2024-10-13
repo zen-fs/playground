@@ -9,6 +9,9 @@ export function switchTab(name: string): void {
 		.filter('.tab')
 		.show();
 
+	$(`#nav button.active`).removeClass('active');
+	$(`#nav button[name=${name}]`).addClass('active');
+
 	if (name == 'explorer') {
 		update();
 	}
