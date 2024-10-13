@@ -8,7 +8,9 @@ import chalk from 'chalk';
 import $ from 'jquery';
 import { createShell } from 'utilium/shell.js';
 
-const terminal = new Terminal({});
+const terminal = new Terminal({
+	convertEol: true,
+});
 const fitAddon = new FitAddon();
 terminal.loadAddon(fitAddon);
 terminal.loadAddon(new WebLinksAddon());
@@ -28,14 +30,14 @@ for (const [name, script] of [
 	['cp', `fs.cpSync(args[0], args[1]);`],
 	['mv', `fs.renameSync(args[0], args[1]);`],
 	['rm', `fs.unlinkSync(args[0]);`],
-	['cat', String.raw`terminal.writeln(fs.readFileSync(args[0], 'utf8').replaceAll('\n', '\r\n'));`],
+	['cat', String.raw`terminal.writeln(fs.readFileSync(args[0], 'utf8'));`],
 	['pwd', `terminal.writeln(path.cwd);`],
 	['mkdir', `fs.mkdirSync(args[0]);`],
 	['echo', `terminal.writeln(args.join(' '));`],
 	['stat', `terminal.writeln('[work in progress]'/*inspect(fs.statSync(args[0]), { colors: true })*/)`],
 ]) {
 	fs.writeFileSync('/bin/' + name, script);
-	fs.chmodSync('/bin/' + name, 555);
+	fs.chmodSync('/bin/' + name, 0o555);
 }
 
 const exec_locals = { fs, path };
