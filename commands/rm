@@ -1,0 +1,1 @@
+fs.unlinkSync(args[0]);

@@ -1,13 +1,48 @@
 import { FitAddon } from '@xterm/addon-fit';
 import { WebLinksAddon } from '@xterm/addon-web-links';
 import { Terminal } from '@xterm/xterm';
-import { fs } from '@zenfs/core';
+import { configure, encode, fs, IndexFS } from '@zenfs/core';
 import { X_OK } from '@zenfs/core/emulation/constants.js';
 import * as path from '@zenfs/core/emulation/path.js';
 import chalk from 'chalk';
 import $ from 'jquery';
 import { createShell } from 'utilium/shell.js';
 import { openPath } from './common.js';
+
+class _CommandsFS extends IndexFS {
+	public async ready(): Promise<void> {
+		if (this._isInitialized) {
+			return;
+		}
+		await super.ready();
+
+		if (this._disableSync) {
+			return;
+		}
+
+		/**
+		 * Iterate over all of the files and cache their contents
+		 */
+		for (const [path, stats] of this.index.files()) {
+			await this.getData(path);
+		}
+	}
+	protected getData(path: string): Promise<Uint8Array> {
+		return Promise.resolve(encode($commands[path]));
+	}
+	protected getDataSync(path: string): Uint8Array {
+		return encode($commands[path]);
+	}
+}
+
+const _cmdFS = new _CommandsFS($commands_index);
+await _cmdFS.ready();
+
+await configure({
+	mounts: {
+		'/bin': _cmdFS,
+	},
+});
 
 const terminal = new Terminal({
 	convertEol: true,
@@ -19,27 +54,6 @@ terminal.open($('#terminal-container')[0]);
 fitAddon.fit();
 
 terminal.writeln('Virtual FS shell.');
-
-if (!fs.existsSync('/bin')) {
-	fs.mkdirSync('/bin');
-}
-
-for (const [name, script] of [
-	['help', `terminal.writeln('Some unix commands available, ls /bin to see them.');`],
-	['ls', `terminal.writeln(fs.readdirSync(args[0] || '.').map(name => (fs.statSync(path.join(args[0] || '.', name)).isDirectory() ? chalk.blue(name) : name)).join(' '))`],
-	['cd', `cd(args[0] || path.resolve('.'), true);`],
-	['cp', `fs.cpSync(args[0], args[1]);`],
-	['mv', `fs.renameSync(args[0], args[1]);`],
-	['rm', `fs.unlinkSync(args[0]);`],
-	['cat', String.raw`terminal.writeln(fs.readFileSync(args[0], 'utf8'));`],
-	['pwd', `terminal.writeln(path.cwd);`],
-	['mkdir', `fs.mkdirSync(args[0]);`],
-	['echo', `terminal.writeln(args.join(' '));`],
-	['stat', `terminal.writeln('[work in progress]'/*inspect(fs.statSync(args[0]), { colors: true })*/)`],
-]) {
-	fs.writeFileSync('/bin/' + name, script);
-	fs.chmodSync('/bin/' + name, 0o555);
-}
 
 const exec_locals = { fs, path, openPath };
 
@@ -78,5 +92,5 @@ const shell = createShell({
 		}
 	},
 });
-Object.assign(globalThis, { shell });
+Object.assign(globalThis, { shell, fs, _cmdFS });
 terminal.write(shell.prompt);

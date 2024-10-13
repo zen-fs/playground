@@ -1,0 +1,1 @@
+terminal.writeln(fs.readFileSync(args[0], 'utf8'));

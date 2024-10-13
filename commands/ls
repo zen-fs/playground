@@ -1,0 +1,6 @@
+terminal.writeln(
+	fs
+		.readdirSync(args[0] || '.')
+		.map(name => (fs.statSync(path.join(args[0] || '.', name)).isDirectory() ? chalk.blue(name) : name))
+		.join(' ')
+);

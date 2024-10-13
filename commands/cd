@@ -1,0 +1,1 @@
+cd(args[0] || path.resolve('.'), true);

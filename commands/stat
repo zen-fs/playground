@@ -1,0 +1,1 @@
+terminal.writeln('[work in progress]' /*inspect(fs.statSync(args[0]), { colors: true })*/);

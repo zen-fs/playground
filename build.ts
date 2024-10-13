@@ -1,5 +1,8 @@
 #!/usr/bin/env node
 import { build, context, type BuildOptions } from 'esbuild';
+import { execSync } from 'node:child_process';
+import { readdirSync, readFileSync } from 'node:fs';
+import { basename } from 'node:path';
 import { parseArgs } from 'node:util';
 
 const {
@@ -14,9 +17,11 @@ const {
 
 const outdir = 'build';
 
+execSync('npx make-index commands -o build/index.json', { stdio: 'inherit' });
+
 const config: BuildOptions = {
 	entryPoints: ['src/index.ts', 'src/index.html', 'src/styles.css'],
-	target: 'es2021',
+	target: 'es2022',
 	outdir,
 	loader: {
 		'.html': 'copy',
@@ -26,6 +31,10 @@ const config: BuildOptions = {
 	bundle: true,
 	format: 'esm',
 	platform: 'browser',
+	define: {
+		$commands: JSON.stringify(Object.fromEntries(readdirSync('commands').map(name => ['/' + name, readFileSync('commands/' + name, 'utf-8')]))),
+		$commands_index: readFileSync('build/index.json', 'utf-8'),
+	},
 };
 
 switch (mode) {
