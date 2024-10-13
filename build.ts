@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import { build, context, type BuildOptions } from 'esbuild';
 import { execSync } from 'node:child_process';
-import { readdirSync, readFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readdirSync, readFileSync } from 'node:fs';
 import { basename } from 'node:path';
 import { parseArgs } from 'node:util';
 
@@ -16,6 +16,10 @@ const {
 });
 
 const outdir = 'build';
+
+if (!existsSync('build')) {
+	mkdirSync('build');
+}
 
 execSync('npx make-index commands -o build/index.json', { stdio: 'inherit' });
 
@@ -34,9 +38,6 @@ const config: BuildOptions = {
 	define: {
 		$commands: JSON.stringify(Object.fromEntries(readdirSync('commands').map(name => ['/' + name, readFileSync('commands/' + name, 'utf-8')]))),
 		$commands_index: readFileSync('build/index.json', 'utf-8'),
-	},
-	logOverride: {
-		'direct-eval': 'info',
 	},
 };
 
