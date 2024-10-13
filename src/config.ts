@@ -5,8 +5,8 @@ import { WebAccess, WebStorage, IndexedDB } from '@zenfs/dom';
 import { Iso } from '@zenfs/iso';
 import { Zip } from '@zenfs/zip';
 import $ from 'jquery';
-import { instantiateTemplate } from './templates.js';
 import { randomHex, type Entries } from 'utilium';
+import { cloneTemplate } from 'utilium/dom.js';
 import { download, upload } from 'utilium/dom.js';
 
 export type HTMLAttributeName = 'id' | 'class' | 'style' | 'href' | 'src' | 'alt' | 'title' | 'placeholder';
@@ -151,7 +151,7 @@ export const backends = [
 ] satisfies BackendOption<Backend>[];
 
 function createNewMountConfig() {
-	const li = instantiateTemplate('#mount').find('li');
+	const li = $(cloneTemplate('#mount')).find('li');
 	const id = randomHex(16);
 	li.find('input[name=id]').val(id);
 	const select = li.find('select');

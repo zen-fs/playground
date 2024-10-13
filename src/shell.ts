@@ -7,6 +7,7 @@ import * as path from '@zenfs/core/emulation/path.js';
 import chalk from 'chalk';
 import $ from 'jquery';
 import { createShell } from 'utilium/shell.js';
+import { cd } from './common.js';
 
 const terminal = new Terminal({
 	convertEol: true,
@@ -26,7 +27,7 @@ if (!fs.existsSync('/bin')) {
 for (const [name, script] of [
 	['help', `terminal.writeln('Some unix commands available, ls /bin to see them.');`],
 	['ls', `terminal.writeln(fs.readdirSync(args[0] || '.').map(name => (fs.statSync(path.join(args[0] || '.', name)).isDirectory() ? chalk.blue(name) : name)).join(' '))`],
-	['cd', `path.cd(args[0] || path.resolve('.'));`],
+	['cd', `cd(args[0] || path.resolve('.'));`],
 	['cp', `fs.cpSync(args[0], args[1]);`],
 	['mv', `fs.renameSync(args[0], args[1]);`],
 	['rm', `fs.unlinkSync(args[0]);`],
@@ -40,11 +41,11 @@ for (const [name, script] of [
 	fs.chmodSync('/bin/' + name, 0o555);
 }
 
-const exec_locals = { fs, path };
+const exec_locals = { fs, path, cd };
 
 function exec(line: string): void {
 	/* eslint-disable @typescript-eslint/no-unused-vars */
-	const { fs, path } = exec_locals;
+	const { fs, path, cd } = exec_locals;
 	const [command, ...args] = line.trim().split(' ');
 	/* eslint-enable @typescript-eslint/no-unused-vars */
 

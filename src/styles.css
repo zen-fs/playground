@@ -104,12 +104,46 @@ select {
 	}
 }
 
+#explorer {
+	padding: 1em;
+
+	li {
+		display: flex;
+		align-items: center;
+		gap: 1em;
+
+		p {
+			white-space: nowrap;
+			margin: 0;
+			padding: 0.25em;
+			overflow: hidden;
+			text-overflow: ellipsis;
+		}
+
+		p.name {
+			flex-grow: 1;
+		}
+
+		p.size {
+			flex: 0 0 5em;
+		}
+
+		p.mtime {
+			flex: 0 0 12em;
+		}
+	}
+
+	.header {
+		font-weight: bold;
+	}
+
+	.entry {
+		border: 1px solid #555;
+		border-radius: 0.5em;
+	}
+}
+
 #terminal-container {
 	position: absolute;
 	inset: 1em;
-}
-
-li.entry {
-	border-radius: 0.25em;
-	padding: 0.25em;
 }
