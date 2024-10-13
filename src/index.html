@@ -10,6 +10,7 @@
 		<div id="nav">
 			<button name="config">Config</button>
 			<button name="explorer">Explorer</button>
+			<button name="editor">Editor</button>
 			<button name="terminal">Terminal</button>
 			<input id="location" value="/" placeholder="Path" />
 		</div>
@@ -52,6 +53,12 @@
 				</li>
 			</template>
 		</ul>
+
+		<div id="editor" class="tab" style="display: none">
+			<strong class="title">Editor</strong>
+
+			<textarea class="content"></textarea>
+		</div>
 
 		<div id="terminal" class="tab" style="display: none">
 			<div id="terminal-container"></div>

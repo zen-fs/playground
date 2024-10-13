@@ -7,7 +7,7 @@ import * as path from '@zenfs/core/emulation/path.js';
 import chalk from 'chalk';
 import $ from 'jquery';
 import { createShell } from 'utilium/shell.js';
-import { openPath } from './explorer.js';
+import { openPath } from './common.js';
 
 const terminal = new Terminal({
 	convertEol: true,

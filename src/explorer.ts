@@ -1,22 +1,11 @@
 import { fs } from '@zenfs/core';
-import { cwd, join, cd, resolve } from '@zenfs/core/emulation/path.js';
+import { cwd, join } from '@zenfs/core/emulation/path.js';
 import $ from 'jquery';
 import { formatCompact } from 'utilium';
 import { cloneTemplate } from 'utilium/dom.js';
+import { openPath } from './common.js';
 
 export const location = $<HTMLInputElement>('#location');
-
-export function openPath(dir: string, fromShell: boolean = false): void {
-	if (fs.statSync(dir).isDirectory()) {
-		cd(dir);
-		$('#location').val(cwd);
-		return;
-	}
-
-	if (fromShell) {
-		throw new Error(`Error: ENOTDIR: File is not a directory, '${resolve(dir)}'`);
-	}
-}
 
 const endsWithLetter = /[^\d]$/;
 

@@ -28,6 +28,11 @@ select {
 	padding: 0.25em;
 }
 
+textarea:focus,
+input:focus {
+	outline: none;
+}
+
 #location {
 	padding: 0.25em 1em;
 	border-radius: 0.5em;
@@ -144,6 +149,13 @@ select {
 		border: 1px solid #777;
 		border-radius: 0.5em;
 	}
+}
+
+#editor textarea.content {
+	position: absolute;
+	inset: 3em 1em 1em 1em;
+	border-radius: 0.5em;
+	border: none;
 }
 
 #terminal-container {
