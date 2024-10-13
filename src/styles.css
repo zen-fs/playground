@@ -134,12 +134,17 @@ select {
 		}
 	}
 
-	.header {
+	li.header {
 		font-weight: bold;
 	}
 
-	.entry {
+	li.entry {
 		border: 1px solid #555;
+		border-radius: 0.5em;
+	}
+
+	li.entry.selected {
+		border: 1px solid #777;
 		border-radius: 0.5em;
 	}
 }

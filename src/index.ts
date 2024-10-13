@@ -3,11 +3,10 @@ import './styles.css';
 
 import $ from 'jquery';
 import './config.js';
-import { update } from './explorer.js';
+import { update, openPath, location } from './explorer.js';
 import './shell.js';
 import { cwd, isAbsolute } from '@zenfs/core/emulation/path.js';
 import { fs } from '@zenfs/core';
-import { cd } from './common.js';
 
 // Switching tabs
 $<HTMLButtonElement>('#nav button').on('click', e => {
@@ -21,8 +20,6 @@ $<HTMLButtonElement>('#nav button').on('click', e => {
 	}
 });
 
-const location = $<HTMLInputElement>('#location');
-
 location.on('change', () => {
 	const value = location.val() ?? '';
 	if (!isAbsolute(value)) {
@@ -35,5 +32,6 @@ location.on('change', () => {
 		return;
 	}
 
-	cd(value);
+	openPath(value);
+	update();
 });
