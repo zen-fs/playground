@@ -69,10 +69,7 @@ select {
 	border: 1px solid #999;
 	border-radius: 1em;
 	position: fixed;
-	left: 0.5em;
-	top: 3em;
-	width: calc(100% - 4em);
-	height: calc(100% - 5em);
+	inset: 3em 0.5em 0.5em;
 	margin: 0;
 
 	.title {
