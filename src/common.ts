@@ -34,4 +34,22 @@ export function openPath(path: string, fromShell: boolean = false): void {
 	update();
 }
 
-Object.assign(globalThis, { openPath, switchTab });
+export function confirm(text: string): Promise<boolean> {
+	const { promise, resolve } = Promise.withResolvers<boolean>();
+
+	const confirm = $<HTMLDialogElement>('#confirm');
+
+	confirm.find('.message').text(text);
+
+	confirm[0].showModal();
+
+	confirm.find('button.okay').on('click', () => resolve(true));
+
+	confirm.find('button.cancel').on('click', () => resolve(false));
+
+	void promise.then(() => confirm[0].close());
+
+	return promise;
+}
+
+Object.assign(globalThis, { openPath, switchTab, confirm });
