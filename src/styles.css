@@ -40,8 +40,7 @@ select {
 	resize: none;
 }
 
-textarea:focus,
-input:focus {
+:focus {
 	outline: none;
 }
 

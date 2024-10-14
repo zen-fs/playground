@@ -41,6 +41,7 @@ content.on('keydown', e => {
 			void open();
 			break;
 		case 's':
+			e.preventDefault();
 			void save();
 			break;
 	}
