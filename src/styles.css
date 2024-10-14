@@ -20,6 +20,15 @@ button {
 	cursor: pointer;
 }
 
+button:disabled {
+	background-color: #333;
+	border: 1px solid #666;
+	color: #999;
+	border-radius: 0.5em;
+	padding: 0.5em;
+	cursor: pointer;
+}
+
 input,
 textarea,
 select {
@@ -178,6 +187,41 @@ input:focus {
 		div:hover {
 			background-color: #666;
 			border-radius: 0.5em;
+		}
+	}
+
+	dialog.create {
+		border: 1px solid #999;
+		border-radius: 0.5em;
+		background-color: #333;
+		min-width: 25em;
+
+		.inputs {
+			display: flex;
+			flex-direction: column;
+			gap: 0.5em;
+			margin-bottom: 3em;
+		}
+
+		.error {
+			height: 0;
+		}
+
+		label {
+			font-size: 0.75em;
+			display: inline-block;
+		}
+
+		button.cancel {
+			position: absolute;
+			left: 0.5em;
+			bottom: 0.5em;
+		}
+
+		button.create {
+			position: absolute;
+			right: 0.5em;
+			bottom: 0.5em;
 		}
 	}
 }

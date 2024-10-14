@@ -116,3 +116,58 @@ $('#explorer').on('contextmenu', () => $('#explorer .menu').hide());
 $('#explorer .parent').on('click', () => {
 	openPath(dirname(cwd));
 });
+
+const create = $<HTMLDialogElement>('#explorer dialog.create'),
+	createName = create.find<HTMLInputElement>('.inputs .name');
+
+$('#explorer .new').on('click', () => {
+	create[0].showModal();
+});
+
+create.find('button.cancel').on('click', () => {
+	create.find('input,select').val('');
+	create.find('.error').text('').css({ height: 0 });
+	create[0].close();
+});
+
+createName.on('keydown change focus blur', e => {
+	if (e.target.value) {
+		create.find('button.create').removeAttr('disabled');
+	} else {
+		create.find('button.create').attr('disabled', 1);
+	}
+});
+
+create.find('button.create').on('click', () => {
+	const type = create.find<HTMLSelectElement>('.inputs .type').val()!;
+	if (!type) {
+		create.find('.error').text('You must select a file type').animate({ height: '1em' }, 250);
+		return;
+	}
+
+	const name = createName.val()!;
+	if (!name) {
+		create.find('.error').text('You must provide a file name').animate({ height: '1em' }, 250);
+		return;
+	}
+
+	if (fs.existsSync(name)) {
+		create.find('.error').text('A file with that name already exists').animate({ height: '1em' }, 250);
+		return;
+	}
+
+	switch (type) {
+		case 'file':
+			fs.writeFileSync(name, '');
+			break;
+		case 'directory':
+			fs.mkdirSync(name);
+			break;
+		default:
+			create.find('.error').text('Invalid file type').animate({ height: '1em' }, 250);
+			return;
+	}
+
+	createEntry(name);
+	create[0].close();
+});
