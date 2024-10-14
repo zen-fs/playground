@@ -1,3 +1,4 @@
+/// <reference file="./lib.d.ts" >
 terminal.writeln(
 	fs
 		.readdirSync(args[0] || '.')

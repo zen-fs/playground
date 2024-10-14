@@ -1,0 +1,6 @@
+/// <reference file="./lib.d.ts" >
+if (fs.existsSync(args[0])) {
+	fs.utimesSync(args[0], Date.now(), Date.now());
+} else {
+	fs.writeFileSync(args[0], '');
+}

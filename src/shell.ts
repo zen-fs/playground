@@ -9,6 +9,8 @@ import $ from 'jquery';
 import { createShell } from 'utilium/shell.js';
 import { openPath } from './common.js';
 
+chalk.level = 2;
+
 class _CommandsFS extends IndexFS {
 	public async ready(): Promise<void> {
 		if (this._isInitialized) {
@@ -46,14 +48,14 @@ await configure({
 
 const terminal = new Terminal({
 	convertEol: true,
+	rows: 48,
 });
 const fitAddon = new FitAddon();
 terminal.loadAddon(fitAddon);
 terminal.loadAddon(new WebLinksAddon());
+terminal.write('\x1b[4h');
 terminal.open($('#terminal-container')[0]);
 fitAddon.fit();
-
-terminal.writeln('Virtual FS shell.');
 
 const exec_locals = { fs, path, openPath };
 
@@ -62,6 +64,10 @@ function exec(line: string): void {
 	const { fs, path, openPath: cd } = exec_locals;
 	const [command, ...args] = line.trim().split(' ');
 	/* eslint-enable @typescript-eslint/no-unused-vars */
+
+	if (!command) {
+		return;
+	}
 
 	if (!fs.existsSync('/bin/' + command)) {
 		terminal.writeln('Unknown command: ' + command);
@@ -79,7 +85,10 @@ function exec(line: string): void {
 const shell = createShell({
 	terminal,
 	get prompt(): string {
-		return `[${chalk.green(path.cwd == '/root' ? '~' : path.basename(path.cwd) || '/')}]$ `;
+		return `[pg@zenfs.dev ${chalk.green(path.cwd == '/root' ? '~' : path.basename(path.cwd) || '/')}]$ `;
+	},
+	get promptLength(): number {
+		return (path.cwd == '/root' ? '~' : path.basename(path.cwd) || '/').length + 17;
 	},
 	/**
 	 * @todo output to history file
@@ -89,8 +98,11 @@ const shell = createShell({
 			exec(line);
 		} catch (error) {
 			terminal.writeln('Error: ' + (error as Error).message);
+			if ($('#terminal input.debug').is(':checked')) {
+				throw error;
+			}
 		}
 	},
 });
-Object.assign(globalThis, { shell, fs, _cmdFS });
+Object.assign(globalThis, { shell, fs, chalk });
 terminal.write(shell.prompt);

@@ -166,5 +166,5 @@ input:focus {
 
 #terminal-container {
 	position: absolute;
-	inset: 1em;
+	inset: 5em 1em 1em 1em;
 }

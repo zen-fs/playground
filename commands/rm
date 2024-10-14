@@ -1,1 +1,2 @@
+/// <reference file="./lib.d.ts" >
 fs.unlinkSync(args[0]);
