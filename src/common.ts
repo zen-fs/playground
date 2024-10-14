@@ -31,3 +31,5 @@ export function openPath(dir: string, fromShell: boolean = false): void {
 	switchTab('editor');
 	$('#editor .content').text(fs.readFileSync(dir, 'utf-8'));
 }
+
+Object.assign(globalThis, { openPath, switchTab });
