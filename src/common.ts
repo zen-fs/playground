@@ -17,19 +17,21 @@ export function switchTab(name: string): void {
 	}
 }
 
-export function openPath(dir: string, fromShell: boolean = false): void {
-	if (fs.statSync(dir).isDirectory()) {
-		cd(dir);
+export function openPath(path: string, fromShell: boolean = false): void {
+	if (fs.statSync(path).isDirectory()) {
+		cd(path);
 		$('#location').val(cwd);
+		update();
 		return;
 	}
 
 	if (fromShell) {
-		throw new Error(`Error: ENOTDIR: File is not a directory, '${resolve(dir)}'`);
+		throw new Error(`Error: ENOTDIR: File is not a directory, '${resolve(path)}'`);
 	}
 
 	switchTab('editor');
-	$('#editor .content').text(fs.readFileSync(dir, 'utf-8'));
+	$('#editor .content').text(fs.readFileSync(path, 'utf-8'));
+	update();
 }
 
 Object.assign(globalThis, { openPath, switchTab });
