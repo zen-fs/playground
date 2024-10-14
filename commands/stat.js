@@ -54,7 +54,7 @@ const types = {
 	[S_IFSOCK]: 'socket',
 };
 
-const filePath = args[0] || path.resolve('.') || '/';
+const filePath = args[1] || path.resolve('.') || '/';
 
 // Retrieve the file statistics
 const stats = fs.statSync(filePath);

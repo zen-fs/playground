@@ -1,5 +1,5 @@
 /// <reference file="./lib.d.ts" >
-const [mode, filePath] = args;
+const [command, mode, filePath] = args;
 
 // Helper to translate permission letters (r, w, x, etc.) to octal
 const permissions = {

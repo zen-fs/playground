@@ -1,2 +1,0 @@
-/// <reference file="./lib.d.ts" >
-fs.cpSync(args[0], args[1]);

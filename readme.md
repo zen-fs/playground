@@ -1,3 +1,3 @@
 # ZenFS Playground
 
-This is a work in progress!
+The playground (will) allow you to explore ZenFS' configurations.

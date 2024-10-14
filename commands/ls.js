@@ -57,7 +57,7 @@ const colors = [
 	[S_IFLNK, 'cyan'],
 ];
 
-const dir = args.filter(arg => !arg.startsWith('-'))[0] || '.';
+const dir = args.slice(1).filter(arg => !arg.startsWith('-'))[0] || '.';
 const longFormat = args.includes('-l');
 
 for (const file of fs.readdirSync(dir)) {

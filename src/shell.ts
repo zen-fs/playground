@@ -11,7 +11,7 @@ import { openPath } from './common.js';
 
 chalk.level = 2;
 
-class _CommandsFS extends IndexFS {
+class _BuiltinFS extends IndexFS {
 	public async ready(): Promise<void> {
 		if (this._isInitialized) {
 			return;
@@ -37,12 +37,12 @@ class _CommandsFS extends IndexFS {
 	}
 }
 
-const _cmdFS = new _CommandsFS($commands_index);
-await _cmdFS.ready();
+const _builtinFS = new _BuiltinFS($commands_index);
+await _builtinFS.ready();
 
 await configure({
 	mounts: {
-		'/bin': _cmdFS,
+		'/bin': _builtinFS,
 	},
 });
 
@@ -59,27 +59,31 @@ fitAddon.fit();
 
 const exec_locals = { fs, path, openPath };
 
-function exec(line: string): void {
+function __import(__name: string): void {}
+
+export function exec(__cmdLine: string): void {
 	/* eslint-disable @typescript-eslint/no-unused-vars */
 	const { fs, path, openPath: cd } = exec_locals;
-	const [command, ...args] = line.trim().split(' ');
+	const args = __cmdLine.trim().split(' ');
 	/* eslint-enable @typescript-eslint/no-unused-vars */
 
-	if (!command) {
+	if (!args[0]) {
 		return;
 	}
 
-	if (!fs.existsSync('/bin/' + command)) {
-		terminal.writeln('Unknown command: ' + command);
+	const __filename = '/bin/' + args[0] + '.js';
+
+	if (!fs.existsSync(__filename)) {
+		terminal.writeln('Unknown command: ' + args[0]);
 		return;
 	}
 
-	if (!fs.statSync('/bin/' + command).hasAccess(X_OK)) {
-		terminal.writeln('Missing permission: ' + command);
+	if (!fs.statSync(__filename).hasAccess(X_OK)) {
+		terminal.writeln('Missing permission: ' + args[0]);
 		return;
 	}
 
-	eval(fs.readFileSync('/bin/' + command, 'utf8'));
+	eval(fs.readFileSync(__filename, 'utf8'));
 }
 
 const shell = createShell({

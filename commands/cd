@@ -1,2 +1,0 @@
-/// <reference file="./lib.d.ts" >
-cd(args[0] || path.resolve('.'), true);

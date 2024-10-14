@@ -1,2 +1,0 @@
-/// <reference file="./lib.d.ts" >
-terminal.writeln(fs.readFileSync(args[0], 'utf8'));

@@ -1,2 +1,0 @@
-/// <reference file="./lib.d.ts" >
-fs.mkdirSync(args[0]);
