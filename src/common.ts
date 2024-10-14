@@ -1,7 +1,8 @@
 import $ from 'jquery';
-import { update } from './explorer.js';
+import { update as updateExplorer } from './explorer.js';
 import { cd, cwd, resolve } from '@zenfs/core/emulation/path.js';
 import { fs } from '@zenfs/core';
+import * as editor from './editor.js';
 
 export function switchTab(name: string): void {
 	$('.tab').hide();
@@ -13,7 +14,7 @@ export function switchTab(name: string): void {
 	$(`#nav button[name=${name}]`).addClass('active');
 
 	if (name == 'explorer') {
-		update();
+		updateExplorer();
 	}
 }
 
@@ -21,7 +22,7 @@ export function openPath(path: string, fromShell: boolean = false): void {
 	if (fs.statSync(path).isDirectory()) {
 		cd(path);
 		$('#location').val(cwd);
-		update();
+		updateExplorer();
 		return;
 	}
 
@@ -30,25 +31,44 @@ export function openPath(path: string, fromShell: boolean = false): void {
 	}
 
 	switchTab('editor');
-	$('#editor .content').text(fs.readFileSync(path, 'utf-8'));
-	update();
+	void editor.open(path);
 }
 
 export function confirm(text: string): Promise<boolean> {
 	const { promise, resolve } = Promise.withResolvers<boolean>();
 
-	const confirm = $<HTMLDialogElement>('#confirm');
+	const dialog = $<HTMLDialogElement>('#confirm');
+	dialog.find('.message').text(text);
+	dialog[0].showModal();
+	dialog.find('button.okay').on('click', () => resolve(true));
+	dialog.find('button.cancel').on('click', () => resolve(false));
+	void promise.then(() => dialog[0].close());
+	return promise;
+}
 
-	confirm.find('.message').text(text);
+export function prompt(text: string): Promise<string | void> {
+	const { promise, resolve } = Promise.withResolvers<string | void>();
 
-	confirm[0].showModal();
+	const dialog = $<HTMLDialogElement>('#prompt');
+	dialog.find('.message').text(text);
+	dialog.find('input').val('');
+	dialog[0].showModal();
+	dialog.find('button.okay').on('click', () => resolve(dialog.find('input').val()!));
+	dialog.find('button.cancel').on('click', () => resolve());
+	void promise.then(() => dialog[0].close());
+	return promise;
+}
 
-	confirm.find('button.okay').on('click', () => resolve(true));
+export function alert(text: string): Promise<void> {
+	const { promise, resolve } = Promise.withResolvers<void>();
 
-	confirm.find('button.cancel').on('click', () => resolve(false));
-
-	void promise.then(() => confirm[0].close());
-
+	const dialog = $<HTMLDialogElement>('#alert');
+	dialog.find('.message').text(text);
+	dialog[0].showModal();
+	dialog.find('button.okay').on('click', () => {
+		resolve();
+		dialog[0].close();
+	});
 	return promise;
 }
 

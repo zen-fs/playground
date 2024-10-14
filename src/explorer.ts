@@ -108,11 +108,12 @@ export function update() {
 
 $('#explorer .menu .open').on('click', () => openPath(contextMenuTarget!.name));
 $('#explorer .menu .rename').on('click', () => renameEntry(contextMenuTarget!));
-$('#explorer .menu .delete').on('click', (async e => {
+// eslint-disable-next-line @typescript-eslint/no-misused-promises
+$('#explorer .menu .delete').on('click', async e => {
 	if (e.shiftKey || (await confirm(`Are you sure you want to delete "${contextMenuTarget!.name}"?`))) {
 		removeEntry(contextMenuTarget!);
 	}
-}) as (e: JQuery.Event) => void);
+});
 
 $('#explorer').on('click', () => $('#explorer .menu').hide());
 $('#explorer').on('contextmenu', () => $('#explorer .menu').hide());

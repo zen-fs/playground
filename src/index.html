@@ -91,7 +91,11 @@
 		</ul>
 
 		<div id="editor" class="tab" style="display: none">
-			<strong class="top">Editor</strong>
+			<div class="top">
+				<p><strong>Editor</strong></p>
+				<button class="save">Save</button>
+				<button class="reset">Reset</button>
+			</div>
 
 			<textarea class="content"></textarea>
 		</div>
@@ -103,10 +107,22 @@
 			<div id="terminal-container"></div>
 		</div>
 
-		<dialog id="confirm">
-			<p class="message"></p>
+		<dialog id="confirm" class="page">
 			<button class="cancel">Cancel</button>
 			<button class="okay">Okay</button>
+			<p class="message"></p>
+		</dialog>
+
+		<dialog id="prompt" class="page">
+			<button class="cancel">Cancel</button>
+			<button class="okay">Okay</button>
+			<p class="message"></p>
+			<input type="text" />
+		</dialog>
+
+		<dialog id="alert" class="page">
+			<button class="okay">Okay</button>
+			<p class="message"></p>
 		</dialog>
 
 		<script type="module" src="index.js"></script>

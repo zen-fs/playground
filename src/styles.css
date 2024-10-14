@@ -37,6 +37,7 @@ select {
 	border-radius: 0.25em;
 	padding: 0.25em;
 	accent-color: #bbb;
+	resize: none;
 }
 
 textarea:focus,
@@ -230,23 +231,17 @@ dialog {
 
 #editor textarea.content {
 	position: absolute;
-	inset: 3em 1em 1em 1em;
+	inset: 9em 1em 1em;
 	border-radius: 0.5em;
 	border: none;
 }
 
 #terminal-container {
 	position: absolute;
-	inset: 5em 1em 1em 1em;
+	inset: 5em 1em 1em;
 }
 
-#confirm {
-	text-align: center;
-
-	.message {
-		margin-bottom: 3em;
-	}
-
+dialog.page {
 	button.cancel {
 		position: absolute;
 		left: 0.5em;
@@ -258,4 +253,13 @@ dialog {
 		right: 0.5em;
 		bottom: 0.5em;
 	}
+
+	:last-child {
+		margin-bottom: 3em;
+	}
+}
+
+#confirm,
+#alert {
+	text-align: center;
 }

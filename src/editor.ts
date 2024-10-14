@@ -1,16 +1,47 @@
+import { fs } from '@zenfs/core';
 import $ from 'jquery';
+import { prompt } from './common.js';
 
-$<HTMLTextAreaElement>('#editor .content').on('keydown', e => {
-	if (e.key != 'Tab') {
+export const content = $<HTMLTextAreaElement>('#editor .content');
+
+export let file: string | void;
+
+export async function open(path?: string | void) {
+	path ??= await prompt('Open file');
+	if (!path) {
 		return;
 	}
-	e.preventDefault();
+	file = path;
+	content.text(fs.readFileSync(file, 'utf-8'));
+	content[0].focus();
+}
 
-	const start = e.target.selectionStart;
+export async function save() {
+	file ||= await prompt('Save to path');
+	if (!file) return;
+	fs.writeFileSync(file, content.val()!);
+}
 
-	// set textarea value to: text before caret + tab + text after caret
-	e.target.value = e.target.value.slice(0, start) + '\t' + e.target.value.slice(e.target.selectionEnd);
+content.on('keydown', e => {
+	if (e.key == 'Tab') {
+		e.preventDefault();
+		const start = e.target.selectionStart;
+		e.target.value = e.target.value.slice(0, start) + '\t' + e.target.value.slice(e.target.selectionEnd);
+		e.target.selectionStart = e.target.selectionEnd = start + 1;
+		return;
+	}
 
-	// put caret at right position again
-	e.target.selectionStart = e.target.selectionEnd = start + 1;
+	if (!e.ctrlKey) {
+		return;
+	}
+
+	// Key combos
+	switch (e.key) {
+		case 'o':
+			void open();
+			break;
+		case 's':
+			void save();
+			break;
+	}
 });
