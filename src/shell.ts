@@ -53,7 +53,7 @@ const terminal = new Terminal({
 const fitAddon = new FitAddon();
 terminal.loadAddon(fitAddon);
 terminal.loadAddon(new WebLinksAddon());
-terminal.write('\x1b[4h');
+terminal.write('\x1b[4h'); // Insert mode
 terminal.open($('#terminal-container')[0]);
 fitAddon.fit();
 
