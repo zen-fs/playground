@@ -87,10 +87,7 @@ export function exec(__cmdLine: string): void {
 const shell = createShell({
 	terminal,
 	get prompt(): string {
-		return `[pg@zenfs.dev ${chalk.green(path.cwd == '/root' ? '~' : path.basename(path.cwd) || '/')}]$ `;
-	},
-	get promptLength(): number {
-		return (path.cwd == '/root' ? '~' : path.basename(path.cwd) || '/').length + 17;
+		return `[pg@zenfs.dev ${path.cwd == '/root' ? '~' : path.basename(path.cwd) || '/'}]$ `;
 	},
 	/**
 	 * @todo output to history file
@@ -99,7 +96,7 @@ const shell = createShell({
 		try {
 			exec(line);
 		} catch (error) {
-			terminal.writeln('Error: ' + (error as Error).message);
+			terminal.writeln('Error: ' + ((error as Error).message ?? error));
 			if ($('#terminal input.debug').is(':checked')) {
 				throw error;
 			}
