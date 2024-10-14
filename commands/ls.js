@@ -41,14 +41,6 @@ function formatSize(size) {
 	return ((!index ? size : size.toFixed(1).slice(0, 3)) + units[index]).padStart(4);
 }
 
-const formatter = new Intl.DateTimeFormat('en-US', {
-	month: 'short',
-	day: '2-digit',
-	hour: '2-digit',
-	minute: '2-digit',
-	hour12: false,
-});
-
 const colors = [
 	[0o100, 'green'],
 	[0o010, 'green'],
@@ -56,6 +48,24 @@ const colors = [
 	[S_IFDIR, 'blue'],
 	[S_IFLNK, 'cyan'],
 ];
+
+function colorize(text, stats) {
+	let colorize = chalk;
+	for (const [mask, color] of colors) {
+		if ((stats.mode & mask) == mask) {
+			colorize = utilium.getByString(colorize, color);
+		}
+	}
+	return colorize(text);
+}
+
+const formatter = new Intl.DateTimeFormat('en-US', {
+	month: 'short',
+	day: '2-digit',
+	hour: '2-digit',
+	minute: '2-digit',
+	hour12: false,
+});
 
 const shortFormat = !args.includes('-l');
 
@@ -85,21 +95,20 @@ if (shortFormat) {
 for (const file of files) {
 	const stats = fs.lstatSync(path.join(target, file));
 
-	let colorize = chalk;
-	for (const [mask, color] of colors) {
-		if ((stats.mode & mask) == mask) {
-			colorize = colorize[color];
-		}
-	}
-
 	if (shortFormat) {
 		const [i, length] = columnInfo[file];
-		const colored = colorize(file);
+		const colored = colorize(file, stats);
 		terminal.write(colored.padEnd(colored.length - length + columnLengths[i]));
 		if (i == numColumns - 1) {
 			terminal.write('\n');
 		}
 		continue;
+	}
+
+	let sym = [];
+	if (stats.isSymbolicLink()) {
+		const linkTarget = fs.readlinkSync(path.join(target, file));
+		sym.push('->', fs.existsSync(linkTarget) ? linkTarget : chalk.bgRed(linkTarget));
 	}
 
 	const parts = [
@@ -109,7 +118,8 @@ for (const file of files) {
 		stats.gid.toString().padStart(4),
 		formatSize(stats.size),
 		formatter.format(stats.mtime).replaceAll(',', ''),
-		colorize(file),
+		colorize(file, stats),
+		...sym,
 	];
 
 	terminal.writeln(parts.join(' '));
