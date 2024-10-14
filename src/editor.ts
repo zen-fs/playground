@@ -1,6 +1,6 @@
 import { fs } from '@zenfs/core';
 import $ from 'jquery';
-import { prompt } from './common.js';
+import { prompt, switchTab } from './common.js';
 
 export const content = $<HTMLTextAreaElement>('#editor .content');
 
@@ -31,6 +31,7 @@ export async function open(path?: string | void) {
 	content.val(data);
 	savedContent = data;
 	content[0].focus();
+	switchTab('editor');
 }
 
 export async function save() {
@@ -75,7 +76,7 @@ function handleKeydown(e: JQuery.KeyDownEvent<HTMLTextAreaElement, unknown, HTML
 
 content.on('keydown', e => {
 	handleKeydown(e);
-	setTimeout(updateButtons, 0);
+	setTimeout(updateButtons);
 });
 
 $('#editor button.save').on('click', () => void save());

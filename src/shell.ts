@@ -9,6 +9,7 @@ import $ from 'jquery';
 import { createShell } from 'utilium/shell.js';
 import { openPath } from './common.js';
 import * as utilium from 'utilium';
+import { open as __editor_open } from './editor.js';
 
 chalk.level = 2;
 
@@ -58,11 +59,11 @@ terminal.write('\x1b[4h'); // Insert mode
 terminal.open($('#terminal-container')[0]);
 fitAddon.fit();
 
-const exec_locals = { fs, path, utilium, openPath };
+const __locals = { fs, path, utilium, openPath, __editor_open };
 
 export function exec(__cmdLine: string): void {
 	/* eslint-disable @typescript-eslint/no-unused-vars */
-	const { fs, path, utilium, openPath: cd } = exec_locals;
+	const { fs, path, utilium, openPath: cd, __editor_open } = __locals;
 	const args = __cmdLine.trim().split(' ');
 	/* eslint-enable @typescript-eslint/no-unused-vars */
 

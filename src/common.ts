@@ -30,7 +30,6 @@ export function openPath(path: string, fromShell: boolean = false): void {
 		throw new Error(`Error: ENOTDIR: File is not a directory, '${resolve(path)}'`);
 	}
 
-	switchTab('editor');
 	void editor.open(path);
 }
 
