@@ -49,8 +49,6 @@ const formatter = new Intl.DateTimeFormat('en-US', {
 	hour12: false,
 });
 
-const dir = args.slice(1).filter(arg => !arg.startsWith('-'))[0] || '.';
-
 const colors = [
 	[0o100, 'green'],
 	[0o010, 'green'],
@@ -61,7 +59,14 @@ const colors = [
 
 const shortFormat = !args.includes('-l');
 
-const files = fs.readdirSync(dir);
+let target = args.slice(1).filter(arg => !arg.startsWith('-'))[0] || '.';
+
+const isDir = fs.statSync(target).isDirectory();
+const files = isDir ? fs.readdirSync(target) : [path.basename(target)];
+
+if (!isDir) {
+	target = path.dirname(target);
+}
 
 const maxLength = files.reduce((max, file) => Math.max(max, file.length), 0);
 
@@ -76,10 +81,9 @@ if (shortFormat) {
 		columnLengths[i] = Math.max(columnLengths[i], file.length + 3);
 	}
 }
-console.log(maxLength, columnInfo, columnLengths);
 
 for (const file of files) {
-	const stats = fs.statSync(path.join(dir, file));
+	const stats = fs.statSync(path.join(target, file));
 
 	let colorize = chalk;
 	for (const [mask, color] of colors) {
