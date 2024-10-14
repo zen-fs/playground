@@ -14,6 +14,7 @@ const permissions = {
 // Helper to apply permissions to user/group/other
 function applyPermissions(currentMode, who, op, perms) {
 	let targetMask = 0;
+	const isAll = who.includes('a') || !who;
 	if (who.includes('u')) targetMask |= 0o700; // User
 	if (who.includes('g')) targetMask |= 0o070; // Group
 	if (who.includes('o')) targetMask |= 0o007; // Others
@@ -25,14 +26,38 @@ function applyPermissions(currentMode, who, op, perms) {
 		let bit = permissions[perm];
 		if (!bit) throw new Error('Invalid permission: ' + perm);
 
-		if (perm === 'X' && !(currentMode & 0o111 || fs.statSync(filePath).isDirectory())) {
-			return; // Skip applying 'X' unless already executable or directory
+		let isDir;
+		try {
+			isDir = fs.statSync(filePath).isDirectory();
+		} catch (_) {}
+
+		// Skip applying 'X' unless already executable or directory
+		if (perm === 'X' && !(currentMode & 0o111 || isDir)) {
+			break;
 		}
 
-		permissionBits |= bit;
+		// Set the respective bits for 's' and 't'
+		if (perm === 's' || perm === 't') {
+			permissionBits |= bit;
+			continue;
+		}
+
+		if (!(perm in permissions)) {
+			break;
+		}
+
+		if (who.includes('u') || isAll) {
+			permissionBits |= (bit & 0o7) << 6;
+		}
+		if (who.includes('g') || isAll) {
+			permissionBits |= (bit & 0o7) << 3;
+		}
+		if (who.includes('o') || isAll) {
+			permissionBits |= bit & 0o7;
+		}
 	}
 
-	const change = (permissionBits * targetMask) >> 6;
+	const change = permissionBits & targetMask;
 
 	switch (op) {
 		case '+':
