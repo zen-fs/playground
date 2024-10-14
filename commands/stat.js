@@ -56,8 +56,7 @@ const types = {
 
 const filePath = args[1] || path.resolve('.') || '/';
 
-// Retrieve the file statistics
-const stats = fs.statSync(filePath);
+const stats = fs.lstatSync(filePath);
 
 // Write the output to the terminal
 terminal.write(`

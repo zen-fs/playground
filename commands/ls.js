@@ -83,7 +83,7 @@ if (shortFormat) {
 }
 
 for (const file of files) {
-	const stats = fs.statSync(path.join(target, file));
+	const stats = fs.lstatSync(path.join(target, file));
 
 	let colorize = chalk;
 	for (const [mask, color] of colors) {
