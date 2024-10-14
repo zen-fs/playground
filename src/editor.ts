@@ -6,13 +6,30 @@ export const content = $<HTMLTextAreaElement>('#editor .content');
 
 export let file: string | void;
 
+let savedContent: string | undefined;
+
+function updateButtons() {
+	if (!file) {
+		$('#editor button.save').removeAttr('disabled');
+		return;
+	}
+
+	if (content.val() == savedContent) {
+		$('#editor button.save').attr('disabled', 1);
+	} else {
+		$('#editor button.save').removeAttr('disabled');
+	}
+}
+
 export async function open(path?: string | void) {
 	path ??= await prompt('Open file');
 	if (!path) {
 		return;
 	}
 	file = path;
-	content.text(fs.readFileSync(file, 'utf-8'));
+	const data = fs.readFileSync(file, 'utf-8');
+	content.val(data);
+	savedContent = data;
 	content[0].focus();
 }
 
@@ -20,9 +37,17 @@ export async function save() {
 	file ||= await prompt('Save to path');
 	if (!file) return;
 	fs.writeFileSync(file, content.val()!);
+	savedContent = content.val();
+	updateButtons();
 }
 
-content.on('keydown', e => {
+export function reload() {
+	if (!file) return;
+	content.val(fs.readFileSync(file, 'utf-8'));
+	updateButtons();
+}
+
+function handleKeydown(e: JQuery.KeyDownEvent<HTMLTextAreaElement, unknown, HTMLTextAreaElement, HTMLTextAreaElement>) {
 	if (e.key == 'Tab') {
 		e.preventDefault();
 		const start = e.target.selectionStart;
@@ -38,6 +63,7 @@ content.on('keydown', e => {
 	// Key combos
 	switch (e.key) {
 		case 'o':
+			e.preventDefault();
 			void open();
 			break;
 		case 's':
@@ -45,4 +71,12 @@ content.on('keydown', e => {
 			void save();
 			break;
 	}
+}
+
+content.on('keydown', e => {
+	handleKeydown(e);
+	setTimeout(updateButtons, 0);
 });
+
+$('#editor button.save').on('click', () => void save());
+$('#editor button.reload').on('click', () => void reload());
