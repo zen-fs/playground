@@ -49,6 +49,8 @@ const formatter = new Intl.DateTimeFormat('en-US', {
 	hour12: false,
 });
 
+const dir = args.slice(1).filter(arg => !arg.startsWith('-'))[0] || '.';
+
 const colors = [
 	[0o100, 'green'],
 	[0o010, 'green'],
@@ -57,10 +59,26 @@ const colors = [
 	[S_IFLNK, 'cyan'],
 ];
 
-const dir = args.slice(1).filter(arg => !arg.startsWith('-'))[0] || '.';
-const longFormat = args.includes('-l');
+const shortFormat = !args.includes('-l');
 
-for (const file of fs.readdirSync(dir)) {
+const files = fs.readdirSync(dir);
+
+const maxLength = files.reduce((max, file) => Math.max(max, file.length), 0);
+
+const numColumns = Math.floor(terminal.cols / (maxLength + 1));
+const columnLengths = new Array(numColumns).fill(0);
+const columnInfo = {};
+
+if (shortFormat) {
+	for (const file of files) {
+		const i = files.indexOf(file) % numColumns;
+		columnInfo[file] = [i, file.length];
+		columnLengths[i] = Math.max(columnLengths[i], file.length + 3);
+	}
+}
+console.log(maxLength, columnInfo, columnLengths);
+
+for (const file of files) {
 	const stats = fs.statSync(path.join(dir, file));
 
 	let colorize = chalk;
@@ -68,6 +86,16 @@ for (const file of fs.readdirSync(dir)) {
 		if ((stats.mode & mask) == mask) {
 			colorize = colorize[color];
 		}
+	}
+
+	if (shortFormat) {
+		const [i, length] = columnInfo[file];
+		const colored = colorize(file);
+		terminal.write(colored.padEnd(colored.length - length + columnLengths[i]));
+		if (i == numColumns - 1) {
+			terminal.write('\n');
+		}
+		continue;
 	}
 
 	const parts = [
@@ -80,10 +108,10 @@ for (const file of fs.readdirSync(dir)) {
 		colorize(file),
 	];
 
-	terminal.write(!longFormat ? colorize(file) + ' ' : parts.join(' ') + '\n');
+	terminal.writeln(parts.join(' '));
 }
 
 // New line at the end of the output
-if (!longFormat) {
+if (shortFormat) {
 	terminal.write('\n');
 }

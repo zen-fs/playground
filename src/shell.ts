@@ -59,8 +59,6 @@ fitAddon.fit();
 
 const exec_locals = { fs, path, openPath };
 
-function __import(__name: string): void {}
-
 export function exec(__cmdLine: string): void {
 	/* eslint-disable @typescript-eslint/no-unused-vars */
 	const { fs, path, openPath: cd } = exec_locals;
