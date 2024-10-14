@@ -1,5 +1,5 @@
 import { fs } from '@zenfs/core';
-import { cwd, join } from '@zenfs/core/emulation/path.js';
+import { cwd, dirname, join } from '@zenfs/core/emulation/path.js';
 import $ from 'jquery';
 import { formatCompact } from 'utilium';
 import { cloneTemplate } from 'utilium/dom.js';
@@ -31,6 +31,19 @@ function createEntry(name: string) {
 		}
 
 		li.toggleClass('selected');
+		$('#explorer .menu').hide();
+	});
+
+	li.on('contextmenu', e => {
+		e.preventDefault();
+
+		$('#explorer .menu')
+			.toggle()
+			.css({
+				left: e.clientX + 'px',
+				top: e.clientY + 'px',
+			});
+		return false;
 	});
 
 	li.appendTo('#explorer');
@@ -43,3 +56,8 @@ export function update() {
 		createEntry(file);
 	}
 }
+
+$('#explorer .parent').on('click', () => {
+	openPath(dirname(cwd));
+	update();
+});
