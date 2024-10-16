@@ -26,45 +26,37 @@ fitAddon.fit();
 
 const AsyncFunction = async function () {}.constructor as (...args: string[]) => (...args: unknown[]) => Promise<void>;
 
-async function wait(n: number): Promise<void> {
-	const { promise, resolve } = Promise.withResolvers<void>();
-	setTimeout(resolve, n);
-	return promise;
+/**
+ * Handles removing TS-specific stuff
+ */
+function parse_source(source: string): string {
+	return source.replaceAll(/^\s*export {};\s*\n/g, '');
 }
 
-export async function exec(__cmdLine: string): Promise<void> {
-	const args = __cmdLine.trim().split(' ');
+export async function exec(line: string): Promise<void> {
+	const args = line.trim().split(' ');
 
 	if (!args[0]) {
 		return;
 	}
 
-	const __filename = '/bin/' + args[0] + '.js';
+	const filename = '/bin/' + args[0] + '.js';
 
-	if (!fs.existsSync(__filename)) {
+	if (!fs.existsSync(filename)) {
 		terminal.writeln('Unknown command: ' + args[0]);
 		return;
 	}
 
-	if (!fs.statSync(__filename).hasAccess(X_OK)) {
+	if (!fs.statSync(filename).hasAccess(X_OK)) {
 		terminal.writeln('Missing permission: ' + args[0]);
 		return;
 	}
 
-	await AsyncFunction(
-		'{ fs, path, utilium, terminal, __open, __editor_open, args, wait }',
-		fs.readFileSync(__filename, 'utf8')
-	)({
-		fs,
-		path,
-		chalk,
-		utilium,
-		terminal,
-		__open,
-		__editor_open,
-		args,
-		wait,
-	} satisfies ExecutionLocals | object);
+	const source = parse_source(fs.readFileSync(filename, 'utf8'));
+
+	const locals = { fs, path, chalk, utilium, terminal, __open, __editor_open, args } satisfies ExecutionLocals;
+
+	await AsyncFunction(`{${Object.keys(locals).join(',')}}`, source)(locals);
 }
 
 const shell = createShell({

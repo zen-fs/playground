@@ -1,3 +1,4 @@
+export {};
 /// <reference types="./lib.d.ts" />
 // @ts-check
 
