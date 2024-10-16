@@ -1,54 +1,19 @@
 import { FitAddon } from '@xterm/addon-fit';
 import { WebLinksAddon } from '@xterm/addon-web-links';
 import { Terminal } from '@xterm/xterm';
-import { configure, encode, fs, IndexFS } from '@zenfs/core';
-import { X_OK } from '@zenfs/core/emulation/constants.js';
+import { fs } from '@zenfs/core';
 import * as path from '@zenfs/core/emulation/path.js';
 import chalk from 'chalk';
 import $ from 'jquery';
-import { createShell } from 'utilium/shell.js';
-import { openPath } from './common.js';
 import * as utilium from 'utilium';
+import { createShell } from 'utilium/shell.js';
+import { openPath as __open } from './common.js';
 import { open as __editor_open } from './editor.js';
-
+import { X_OK } from '@zenfs/core/emulation/constants.js';
+import type { ExecutionLocals } from '../commands/lib.js';
 chalk.level = 2;
 
-class _BuiltinFS extends IndexFS {
-	public async ready(): Promise<void> {
-		if (this._isInitialized) {
-			return;
-		}
-		await super.ready();
-
-		if (this._disableSync) {
-			return;
-		}
-
-		/**
-		 * Iterate over all of the files and cache their contents
-		 */
-		for (const [path, stats] of this.index.files()) {
-			await this.getData(path);
-		}
-	}
-	protected getData(path: string): Promise<Uint8Array> {
-		return Promise.resolve(encode($commands[path]));
-	}
-	protected getDataSync(path: string): Uint8Array {
-		return encode($commands[path]);
-	}
-}
-
-const _builtinFS = new _BuiltinFS($commands_index);
-await _builtinFS.ready();
-
-await configure({
-	mounts: {
-		'/bin': _builtinFS,
-	},
-});
-
-const terminal = new Terminal({
+export const terminal = new Terminal({
 	convertEol: true,
 	rows: 48,
 });
@@ -59,13 +24,16 @@ terminal.write('\x1b[4h'); // Insert mode
 terminal.open($('#terminal-container')[0]);
 fitAddon.fit();
 
-const __locals = { fs, path, utilium, openPath, __editor_open };
+const AsyncFunction = async function () {}.constructor as (...args: string[]) => (...args: unknown[]) => Promise<void>;
 
-export function exec(__cmdLine: string): void {
-	/* eslint-disable @typescript-eslint/no-unused-vars */
-	const { fs, path, utilium, openPath: cd, __editor_open } = __locals;
+async function wait(n: number): Promise<void> {
+	const { promise, resolve } = Promise.withResolvers<void>();
+	setTimeout(resolve, n);
+	return promise;
+}
+
+export async function exec(__cmdLine: string): Promise<void> {
 	const args = __cmdLine.trim().split(' ');
-	/* eslint-enable @typescript-eslint/no-unused-vars */
 
 	if (!args[0]) {
 		return;
@@ -83,7 +51,20 @@ export function exec(__cmdLine: string): void {
 		return;
 	}
 
-	eval(fs.readFileSync(__filename, 'utf8'));
+	await AsyncFunction(
+		'{ fs, path, utilium, terminal, __open, __editor_open, args, wait }',
+		fs.readFileSync(__filename, 'utf8')
+	)({
+		fs,
+		path,
+		chalk,
+		utilium,
+		terminal,
+		__open,
+		__editor_open,
+		args,
+		wait,
+	} satisfies ExecutionLocals | object);
 }
 
 const shell = createShell({
@@ -94,15 +75,14 @@ const shell = createShell({
 	/**
 	 * @todo output to history file
 	 */
-	onLine(line) {
-		try {
-			exec(line);
-		} catch (error) {
+	async onLine(line) {
+		await exec(line).catch((error: Error | string) => {
 			terminal.writeln('Error: ' + ((error as Error).message ?? error));
 			if ($('#terminal input.debug').is(':checked')) {
+				// eslint-disable-next-line @typescript-eslint/only-throw-error
 				throw error;
 			}
-		}
+		});
 	},
 });
 Object.assign(globalThis, { shell, fs, chalk });

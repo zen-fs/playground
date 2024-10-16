@@ -187,7 +187,7 @@ function createNewMountConfig() {
 	for (const { backend } of backends) {
 		$('<option />').text(backend.name).val(backend.name).appendTo(select);
 	}
-	li.appendTo('#config');
+	li.appendTo('#config ul');
 	return li;
 }
 
@@ -207,22 +207,25 @@ function toFSTable(configs: Record<string, string>[]): string {
 }
 
 function fromFSTable(table: string): Record<string, string>[] {
-	return table.split('\n').map<Record<string, string>>(line => {
-		const [id, path, backend, options] = line.split(/\s+/);
+	return table
+		.split('\n')
+		.filter(line => !/^\s*$/.test(line))
+		.map<Record<string, string>>(line => {
+			const [id, path, backend, options] = line.split(/\s+/);
 
-		return {
-			...(Object.fromEntries(options.split(',').map(entry => entry.split('='))) as object),
-			id,
-			path,
-			backend,
-		};
-	});
+			return {
+				...(Object.fromEntries(options.split(',').map(entry => entry.split('='))) as object),
+				id,
+				path,
+				backend,
+			};
+		});
 }
 
 function parseConfig(): Record<string, string>[] {
 	const configs: Record<string, string>[] = [];
 
-	$('#config')
+	$('#config ul')
 		.find('li')
 		.each((i: number, li: HTMLLIElement) => {
 			configs[i] = {};
@@ -236,7 +239,7 @@ function parseConfig(): Record<string, string>[] {
 }
 
 function loadConfig(configs: Record<string, string>[]): void {
-	$('#config').find('li').remove();
+	$('#config ul').find('li').remove();
 
 	for (const config of configs) {
 		const li = createNewMountConfig();

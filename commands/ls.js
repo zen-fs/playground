@@ -1,4 +1,7 @@
-/// <reference file="./lib.d.ts" >
+/// <reference types="./lib.d.ts" />
+/// <reference lib="esnext" />
+// @ts-check
+
 const { S_IFREG, S_IFDIR, S_IFCHR, S_IFBLK, S_IFIFO, S_IFLNK, S_IFSOCK, S_IFMT } = fs.constants;
 
 function formatPermissions(mode) {
@@ -52,7 +55,9 @@ const colors = [
 function colorize(text, stats) {
 	let colorize = chalk;
 	for (const [mask, color] of colors) {
+		// @ts-expect-error
 		if ((stats.mode & mask) == mask) {
+			// @ts-expect-error
 			colorize = utilium.getByString(colorize, color);
 		}
 	}

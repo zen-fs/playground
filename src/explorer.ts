@@ -57,7 +57,7 @@ function createEntry(name: string) {
 		return false;
 	});
 
-	li.appendTo('#explorer');
+	li.appendTo('#explorer ul');
 
 	return entry;
 }
@@ -99,7 +99,7 @@ function removeEntry(entry: Entry) {
 }
 
 export function update() {
-	$('#explorer li.entry').remove();
+	$('#explorer ul li.entry').remove();
 
 	for (const name of fs.readdirSync(cwd)) {
 		createEntry(name);

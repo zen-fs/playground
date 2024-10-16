@@ -100,9 +100,15 @@ dialog {
 		top: 0.5em;
 	}
 
+	ul {
+		position: absolute;
+		inset: 6em 1em 0;
+		overflow-x: hidden;
+		overflow-y: scroll;
+		padding-left: 0;
+	}
+
 	li {
-		position: relative;
-		top: 6em;
 		border-radius: 0.25em;
 		padding: 0.25em;
 	}
@@ -125,6 +131,10 @@ dialog {
 
 #explorer {
 	padding: 1em;
+
+	ul {
+		inset: 8em 1em 0;
+	}
 
 	li {
 		display: flex;
@@ -155,6 +165,8 @@ dialog {
 
 	li.header {
 		font-weight: bold;
+		position: relative;
+		top: 6em;
 	}
 
 	li.entry {

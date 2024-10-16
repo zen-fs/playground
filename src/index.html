@@ -15,22 +15,24 @@
 			<input id="location" value="/" placeholder="Path" />
 		</div>
 
-		<ul id="config" class="tab">
+		<div id="config" class="tab">
 			<div class="top">
 				<p><strong>Configuration</strong></p>
 				<input type="checkbox" name="auto-load" class="auto-load" />
 				<label for="autoload">Auto-load</label>
 			</div>
 
-			<template id="mount">
-				<li class="mount">
-					<input type="hidden" name="id" />
-					<input type="text" name="path" placeholder="Mount path" />
-					<select name="backend" placeholder="">
-						<option value="" disabled selected>Select backend</option>
-					</select>
-				</li>
-			</template>
+			<ul>
+				<template id="mount">
+					<li class="mount">
+						<input type="hidden" name="id" />
+						<input type="text" name="path" placeholder="Mount path" />
+						<select name="backend" placeholder="">
+							<option value="" disabled selected>Select backend</option>
+						</select>
+					</li>
+				</template>
+			</ul>
 
 			<button class="add">+</button>
 			<div class="manage">
@@ -38,9 +40,9 @@
 				<button class="download">Download</button>
 				<button class="save">Save</button>
 			</div>
-		</ul>
+		</div>
 
-		<ul id="explorer" class="tab" style="display: none">
+		<div id="explorer" class="tab" style="display: none">
 			<div class="top">
 				<p><strong>Explorer</strong></p>
 				<div>
@@ -63,13 +65,15 @@
 				<p class="mtime">Modified</p>
 			</li>
 
-			<template id="entry">
-				<li class="entry">
-					<p class="name"></p>
-					<p class="size"></p>
-					<p class="mtime"></p>
-				</li>
-			</template>
+			<ul>
+				<template id="entry">
+					<li class="entry">
+						<p class="name"></p>
+						<p class="size"></p>
+						<p class="mtime"></p>
+					</li>
+				</template>
+			</ul>
 
 			<dialog class="create">
 				<div class="inputs">
@@ -88,7 +92,7 @@
 				<button class="create">Create</button>
 				<button class="cancel">Cancel</button>
 			</dialog>
-		</ul>
+		</div>
 
 		<div id="editor" class="tab" style="display: none">
 			<div class="top">

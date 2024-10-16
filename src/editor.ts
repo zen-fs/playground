@@ -21,7 +21,7 @@ function updateButtons() {
 	}
 }
 
-export async function open(path?: string | void) {
+export async function open(this: void, path?: string | void) {
 	path ??= await prompt('Open file');
 	if (!path) {
 		return;

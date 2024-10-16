@@ -1,2 +1,3 @@
-/// <reference file="./lib.d.ts" >
+/// <reference types="./lib.d.ts" />
+// @ts-check
 __editor_open(args[1]);

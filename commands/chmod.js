@@ -1,4 +1,6 @@
-/// <reference file="./lib.d.ts" >
+/// <reference types="./lib.d.ts" />
+// @ts-check
+
 const [command, mode, filePath] = args;
 
 // Helper to translate permission letters (r, w, x, etc.) to octal

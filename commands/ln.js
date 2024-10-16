@@ -1,4 +1,5 @@
-/// <reference file="./lib.d.ts" >
+/// <reference types="./lib.d.ts" />
+// @ts-check
 
 // Argument parsing
 const positionals = args.filter(arg => !arg.startsWith('-')).slice(1);
