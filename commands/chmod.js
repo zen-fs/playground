@@ -1,6 +1,6 @@
-export {};
 /// <reference types="./lib.d.ts" />
 // @ts-check
+export {};
 
 const [command, mode, filePath] = args;
 

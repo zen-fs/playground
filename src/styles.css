@@ -250,6 +250,7 @@ dialog {
 #terminal-container {
 	position: absolute;
 	inset: 5em 1em 1em;
+	overflow-y: scroll;
 }
 
 dialog.page {
