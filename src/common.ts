@@ -1,41 +1,16 @@
-import $ from 'jquery';
-import { update as updateExplorer } from './explorer.js';
+import { configure, Fetch, fs, InMemory, Overlay } from '@zenfs/core';
 import { cd, cwd, resolve } from '@zenfs/core/emulation/path.js';
-import { fs, configure, encode, IndexFS } from '@zenfs/core';
+import $ from 'jquery';
 import * as editor from './editor.js';
-
-class _BuiltinFS extends IndexFS {
-	public async ready(): Promise<void> {
-		if (this._isInitialized) {
-			return;
-		}
-		await super.ready();
-
-		if (this._disableSync) {
-			return;
-		}
-
-		/**
-		 * Iterate over all of the files and cache their contents
-		 */
-		for (const [path, stats] of this.index.files()) {
-			await this.getData(path);
-		}
-	}
-	protected getData(path: string): Promise<Uint8Array> {
-		return Promise.resolve(encode($commands[path]));
-	}
-	protected getDataSync(path: string): Uint8Array {
-		return encode($commands[path]);
-	}
-}
-
-const _builtinFS = new _BuiltinFS($commands_index);
-await _builtinFS.ready();
+import { update as updateExplorer } from './explorer.js';
 
 await configure({
 	mounts: {
-		'/bin': _builtinFS,
+		'/': {
+			backend: Overlay,
+			readable: Fetch.create({}),
+			writable: InMemory.create({ name: 'root-cow' }),
+		},
 	},
 });
 

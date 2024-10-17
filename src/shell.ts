@@ -1,16 +1,14 @@
 import { FitAddon } from '@xterm/addon-fit';
 import { WebLinksAddon } from '@xterm/addon-web-links';
 import { Terminal } from '@xterm/xterm';
-import { fs, resolveMountConfig as __mount_resolve } from '@zenfs/core';
+import { resolveMountConfig as __mount_resolve, fs } from '@zenfs/core';
+import { X_OK } from '@zenfs/core/emulation/constants.js';
 import * as path from '@zenfs/core/emulation/path.js';
 import chalk from 'chalk';
 import $ from 'jquery';
-import * as utilium from 'utilium';
 import { createShell } from 'utilium/shell.js';
 import { openPath as __open } from './common.js';
 import { open as __editor_open } from './editor.js';
-import { X_OK } from '@zenfs/core/emulation/constants.js';
-import type { ExecutionLocals } from '../commands/lib.js';
 chalk.level = 2;
 
 export const terminal = new Terminal({
@@ -26,11 +24,26 @@ fitAddon.fit();
 
 const AsyncFunction = async function () {}.constructor as (...args: string[]) => (...args: unknown[]) => Promise<void>;
 
+const import_regex = /import (?:\* as )?(\w+) from '([^']+)';/g;
+
 /**
- * Handles removing TS-specific stuff
+ * Handles linking and stuff
  */
-function parse_source(source: string): string {
-	return source.replaceAll(/^\s*export {};\s*\n/g, '');
+async function parse_source(source: string): Promise<{ source: string; imports: Record<string, unknown> }> {
+	// Replace any expressions used to force TS into module mode
+	source = source.replaceAll(/^\s*export {};\s*\n/g, '');
+
+	const imports = Object.create(null) as Record<string, unknown>;
+	let match: RegExpExecArray | null;
+	while ((match = import_regex.exec(source))) {
+		const [, binding, specifier] = match;
+
+		imports[binding] = await import(specifier);
+
+		source = source.replace(match[0], '');
+	}
+
+	return { source, imports };
 }
 
 export async function exec(line: string): Promise<void> {
@@ -52,9 +65,9 @@ export async function exec(line: string): Promise<void> {
 		return;
 	}
 
-	const source = parse_source(fs.readFileSync(filename, 'utf8'));
+	const { source, imports } = await parse_source(fs.readFileSync(filename, 'utf8'));
 
-	const locals = { args, fs, path, chalk, utilium, terminal, __open, __editor_open, __mount_resolve } satisfies ExecutionLocals;
+	const locals = { args, fs, terminal, __open, __editor_open, __mount_resolve, ...imports };
 
 	await AsyncFunction(`{${Object.keys(locals).join(',')}}`, source)(locals);
 }

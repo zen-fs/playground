@@ -1,8 +1,6 @@
 import type { fs as _fs, resolveMountConfig } from '@zenfs/core';
 import type * as _path from '@zenfs/core/emulation/path.js';
-import type _chalk from 'chalk';
 import type { Terminal } from '@xterm/xterm';
-import type * as _utilium from 'utilium';
 
 declare global {
 	/**
@@ -36,9 +34,6 @@ declare global {
 
 	// Libraries
 	const fs: typeof _fs;
-	const path: typeof _path;
-	const chalk: typeof _chalk;
-	const utilium: typeof _utilium;
 }
 
 /**
@@ -50,9 +45,6 @@ export interface ExecutionLocals {
 
 	/* Libraries */
 	fs: typeof fs;
-	path: typeof path;
-	chalk: typeof chalk;
-	utilium: typeof utilium;
 
 	/* Internal */
 	__editor_open: typeof __editor_open;

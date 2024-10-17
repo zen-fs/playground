@@ -1,7 +1,6 @@
-/// <reference types="./lib.d.ts" />
-/// <reference lib="esnext" />
-// @ts-check
-export {};
+import * as utilium from 'utilium';
+import chalk from 'chalk';
+import * as path from '@zenfs/core/path';
 
 const { S_IFREG, S_IFDIR, S_IFCHR, S_IFBLK, S_IFIFO, S_IFLNK, S_IFSOCK, S_IFMT } = fs.constants;
 
