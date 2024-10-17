@@ -1,27 +1,61 @@
-import type { fs as _fs } from '@zenfs/core';
+import type { fs as _fs, resolveMountConfig } from '@zenfs/core';
 import type * as _path from '@zenfs/core/emulation/path.js';
 import type _chalk from 'chalk';
 import type { Terminal } from '@xterm/xterm';
 import type * as _utilium from 'utilium';
 
 declare global {
+	/**
+	 * Command line arguments. args[0] is the command name
+	 */
 	const args: string[];
+	/**
+	 * The xterm.js terminal
+	 */
 	const terminal: Terminal;
+
+	/**
+	 * Opens the GUI text editor
+	 * @internal
+	 */
+	function __editor_open(path: string): Promise<void>;
+
+	/**
+	 * Changes the pwd to `path` if `path` is a getDirector
+	 * If `path` isn't a directory and `dirOnly` is `true`, throws an error.
+	 * Otherwise, it opens `path` in the GUI text editor
+	 * @internal
+	 */
+	function __open(path: string, dirOnly?: boolean): void;
+
+	/**
+	 * Resolves a mount with the given configuration
+	 * @internal
+	 */
+	const __mount_resolve: typeof resolveMountConfig;
+
+	// Libraries
 	const fs: typeof _fs;
 	const path: typeof _path;
 	const chalk: typeof _chalk;
 	const utilium: typeof _utilium;
-	function __editor_open(path: string): Promise<void>;
-	function __open(path: string, dirOnly?: boolean): void;
 }
 
+/**
+ * Interface for the script locals
+ */
 export interface ExecutionLocals {
-	args: string[];
-	terminal: Terminal;
-	fs: typeof _fs;
-	path: typeof _path;
-	chalk: typeof _chalk;
-	utilium: typeof _utilium;
-	__editor_open(this: void, path: string): Promise<void>;
-	__open(this: void, path: string, dirOnly?: boolean): void;
+	args: typeof args;
+	terminal: typeof terminal;
+
+	/* Libraries */
+	fs: typeof fs;
+	path: typeof path;
+	chalk: typeof chalk;
+	utilium: typeof utilium;
+
+	/* Internal */
+	__editor_open: typeof __editor_open;
+	__open: typeof __open;
+	__mount_resolve: typeof __mount_resolve;
 }

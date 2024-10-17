@@ -1,7 +1,7 @@
 import { FitAddon } from '@xterm/addon-fit';
 import { WebLinksAddon } from '@xterm/addon-web-links';
 import { Terminal } from '@xterm/xterm';
-import { fs } from '@zenfs/core';
+import { fs, resolveMountConfig as __mount_resolve } from '@zenfs/core';
 import * as path from '@zenfs/core/emulation/path.js';
 import chalk from 'chalk';
 import $ from 'jquery';
@@ -54,7 +54,7 @@ export async function exec(line: string): Promise<void> {
 
 	const source = parse_source(fs.readFileSync(filename, 'utf8'));
 
-	const locals = { fs, path, chalk, utilium, terminal, __open, __editor_open, args } satisfies ExecutionLocals;
+	const locals = { args, fs, path, chalk, utilium, terminal, __open, __editor_open, __mount_resolve } satisfies ExecutionLocals;
 
 	await AsyncFunction(`{${Object.keys(locals).join(',')}}`, source)(locals);
 }
