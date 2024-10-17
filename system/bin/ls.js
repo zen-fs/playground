@@ -63,6 +63,7 @@ function colorize(text, stats) {
 	}
 	return colorize(text);
 }
+console.log(colorize);
 
 const formatter = new Intl.DateTimeFormat('en-US', {
 	month: 'short',

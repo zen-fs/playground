@@ -1,7 +1,8 @@
 #!/usr/bin/env node
-import { build, context, type BuildOptions } from 'esbuild';
+import { build, context, type BuildOptions, type PluginBuild } from 'esbuild';
 import { execSync } from 'node:child_process';
 import { cpSync, existsSync, mkdirSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import { parseArgs } from 'node:util';
 
 const {
@@ -20,25 +21,51 @@ if (!existsSync('build')) {
 	mkdirSync('build');
 }
 
-execSync('npx make-index commands -o build/index.json', { stdio: 'inherit' });
+cpSync('system', 'build/system', { recursive: true });
 
-cpSync('commands', 'build/system');
+const shared_config: BuildOptions = {
+	target: 'es2022',
+	keepNames: true,
+	bundle: true,
+	format: 'esm',
+	platform: 'browser',
+};
+
+const lib_config: BuildOptions & { entryPoints: { in: string; out: string }[] } = {
+	...shared_config,
+	entryPoints: [],
+	outdir: outdir + '/system/lib',
+};
+
+for (const specifier of ['@zenfs/core', 'utilium', 'chalk', '@zenfs/core/path']) {
+	lib_config.entryPoints.push({
+		in: fileURLToPath(import.meta.resolve(specifier)),
+		out: specifier,
+	});
+}
 
 const config: BuildOptions = {
+	...shared_config,
 	entryPoints: ['src/index.ts', 'src/index.html', 'src/styles.css'],
-	target: 'es2022',
 	outdir,
 	loader: {
 		'.html': 'copy',
 	},
 	sourcemap: true,
-	keepNames: true,
-	bundle: true,
-	format: 'esm',
-	platform: 'browser',
 	logOverride: {
 		'direct-eval': 'info',
 	},
+	plugins: [
+		{
+			name: 'build-libs',
+			setup({ onStart }: PluginBuild): void | Promise<void> {
+				onStart(async () => {
+					await build(lib_config);
+					execSync('npx make-index build/system -o build/index.json -q', { stdio: 'inherit' });
+				});
+			},
+		},
+	],
 };
 
 switch (mode) {

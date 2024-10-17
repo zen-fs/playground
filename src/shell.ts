@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/only-throw-error */
 import { FitAddon } from '@xterm/addon-fit';
 import { WebLinksAddon } from '@xterm/addon-web-links';
 import { Terminal } from '@xterm/xterm';
@@ -24,7 +25,7 @@ fitAddon.fit();
 
 const AsyncFunction = async function () {}.constructor as (...args: string[]) => (...args: unknown[]) => Promise<void>;
 
-const import_regex = /import (?:\* as )?(\w+) from '([^']+)';/g;
+const import_regex = /import (\* as )?(\w+) from '([^']+)';/g;
 
 /**
  * Handles linking and stuff
@@ -36,12 +37,30 @@ async function parse_source(source: string): Promise<{ source: string; imports: 
 	const imports = Object.create(null) as Record<string, unknown>;
 	let match: RegExpExecArray | null;
 	while ((match = import_regex.exec(source))) {
-		const [, binding, specifier] = match;
+		const [, isNamespace, binding, specifier] = match;
 
-		imports[binding] = await import(specifier);
+		const lib_path = `/lib/${specifier}.js`;
 
-		source = source.replace(match[0], '');
+		if (!fs.existsSync(lib_path)) {
+			throw 'Could not locate library: ' + specifier;
+		}
+
+		const lib_contents = fs.readFileSync(lib_path, 'utf-8');
+
+		const url = URL.createObjectURL(new Blob([lib_contents], { type: 'text/javascript' }));
+
+		const _module = await import(url);
+
+		if (specifier == 'chalk') {
+			_module.default.level = 2;
+		}
+
+		imports[binding] = isNamespace ? _module : _module.default;
+
+		URL.revokeObjectURL(url);
 	}
+
+	source = source.replaceAll(import_regex, '');
 
 	return { source, imports };
 }
@@ -69,6 +88,10 @@ export async function exec(line: string): Promise<void> {
 
 	const locals = { args, fs, terminal, __open, __editor_open, __mount_resolve, ...imports };
 
+	if ($('#terminal input.debug').is(':checked')) {
+		console.debug('EXEC:\nlocals:', locals, '\nsource:', source);
+	}
+
 	await AsyncFunction(`{${Object.keys(locals).join(',')}}`, source)(locals);
 }
 
@@ -84,7 +107,6 @@ const shell = createShell({
 		await exec(line).catch((error: Error | string) => {
 			terminal.writeln('Error: ' + ((error as Error).message ?? error));
 			if ($('#terminal input.debug').is(':checked')) {
-				// eslint-disable-next-line @typescript-eslint/only-throw-error
 				throw error;
 			}
 		});

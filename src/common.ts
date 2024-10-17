@@ -8,7 +8,10 @@ await configure({
 	mounts: {
 		'/': {
 			backend: Overlay,
-			readable: Fetch.create({}),
+			readable: Fetch.create({
+				baseUrl: '/system',
+				index: '/index.json',
+			}),
 			writable: InMemory.create({ name: 'root-cow' }),
 		},
 	},
