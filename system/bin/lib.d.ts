@@ -1,5 +1,5 @@
 import type { fs as _fs, resolveMountConfig } from '@zenfs/core';
-import type * as _path from '@zenfs/core/emulation/path.js';
+import type * as _path from '@zenfs/core/path';
 import type { Terminal } from '@xterm/xterm';
 
 declare global {

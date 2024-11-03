@@ -1,5 +1,5 @@
 import { configure, Fetch, fs, InMemory, Overlay } from '@zenfs/core';
-import { cd, cwd, resolve } from '@zenfs/core/emulation/path.js';
+import { cd, cwd, resolve } from '@zenfs/core/path';
 import $ from 'jquery';
 import * as editor from './editor.js';
 import { update as updateExplorer } from './explorer.js';

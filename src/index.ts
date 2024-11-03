@@ -6,7 +6,7 @@ import './config.js';
 import './editor.js';
 import { location } from './explorer.js';
 import './shell.js';
-import { cwd, isAbsolute } from '@zenfs/core/emulation/path.js';
+import { cwd, isAbsolute } from '@zenfs/core/path';
 import { fs } from '@zenfs/core';
 import { openPath, switchTab } from './common.js';
 
