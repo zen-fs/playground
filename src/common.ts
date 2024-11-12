@@ -15,6 +15,7 @@ await configure({
 			writable: InMemory.create({ name: 'root-cow' }),
 		},
 	},
+	addDevices: true,
 });
 
 export function switchTab(name: string): void {
