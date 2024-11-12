@@ -10,7 +10,7 @@ await configure({
 			backend: Overlay,
 			readable: Fetch.create({
 				baseUrl: '/system',
-				index: 'index.json',
+				index: '/index.json',
 			}),
 			writable: InMemory.create({ name: 'root-cow' }),
 		},
