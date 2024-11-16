@@ -85,4 +85,4 @@ export function alert(text: string): Promise<void> {
 	return promise;
 }
 
-Object.assign(globalThis, { openPath, switchTab, confirm });
+Object.assign(globalThis, { openPath, switchTab, confirm, cd, cwd });
