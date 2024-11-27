@@ -2,8 +2,7 @@
 import type { Backend, OptionsOf } from '@zenfs/core';
 import fs, { Fetch, InMemory, mounts, Overlay, Port } from '@zenfs/core';
 import { WebAccess, WebStorage, IndexedDB } from '@zenfs/dom';
-import { Iso } from '@zenfs/iso';
-import { Zip } from '@zenfs/zip';
+import { Iso, Zip } from '@zenfs/archives';
 import $ from 'jquery';
 import { randomHex, type Entries } from 'utilium';
 import { cloneTemplate } from 'utilium/dom.js';
@@ -112,7 +111,7 @@ export const backends = [
 			},
 		},
 	},
-	// @zenfs/zip
+	// @zenfs/archives
 	{
 		backend: Zip,
 		inputs: {
@@ -132,7 +131,6 @@ export const backends = [
 			},
 		},
 	},
-	// @zenfs/iso
 	{
 		backend: Iso,
 		inputs: {
