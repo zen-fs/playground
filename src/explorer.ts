@@ -1,5 +1,5 @@
 import { fs } from '@zenfs/core';
-import { cwd, dirname, join } from '@zenfs/core/path';
+import { cwd, dirname, join } from '@zenfs/core/emulation/path.js';
 import $ from 'jquery';
 import { formatCompact } from 'utilium';
 import { cloneTemplate } from 'utilium/dom.js';
