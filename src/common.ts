@@ -1,5 +1,6 @@
-import { configure, Fetch, fs, InMemory, Overlay } from '@zenfs/core';
-import { cd, cwd, resolve } from '@zenfs/core/emulation/path.js';
+import { configure, Fetch, fs, InMemory, CopyOnWrite, normalizePath } from '@zenfs/core';
+import { resolve } from '@zenfs/core/path';
+import { defaultContext } from '@zenfs/core/internal/contexts.js';
 import $ from 'jquery';
 import * as editor from './editor.js';
 import { update as updateExplorer } from './explorer.js';
@@ -7,12 +8,13 @@ import { update as updateExplorer } from './explorer.js';
 await configure({
 	mounts: {
 		'/': {
-			backend: Overlay,
-			readable: Fetch.create({
+			backend: CopyOnWrite,
+			readable: {
+				backend: Fetch,
 				baseUrl: './system',
 				index: './index.json',
-			}),
-			writable: InMemory.create({ name: 'root-cow' }),
+			},
+			writable: { backend: InMemory, label: 'root-cow' },
 		},
 	},
 	addDevices: true,
@@ -33,9 +35,10 @@ export function switchTab(name: string): void {
 }
 
 export function openPath(path: string, dirOnly: boolean = false): void {
+	path = normalizePath(path);
 	if (fs.statSync(path).isDirectory()) {
-		cd(path);
-		$('#location').val(cwd);
+		defaultContext.pwd = path;
+		$('#location').val(path);
 		updateExplorer();
 		return;
 	}
@@ -85,4 +88,4 @@ export function alert(text: string): Promise<void> {
 	return promise;
 }
 
-Object.assign(globalThis, { openPath, switchTab, confirm, cd, cwd });
+Object.assign(globalThis, { openPath, switchTab, confirm });

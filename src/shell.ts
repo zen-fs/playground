@@ -4,7 +4,8 @@ import { WebLinksAddon } from '@xterm/addon-web-links';
 import { Terminal } from '@xterm/xterm';
 import { resolveMountConfig as __mount_resolve, fs } from '@zenfs/core';
 import { X_OK } from '@zenfs/core/emulation/constants.js';
-import * as path from '@zenfs/core/emulation/path.js';
+import { defaultContext } from '@zenfs/core/internal/contexts.js';
+import * as path from '@zenfs/core/path';
 import chalk from 'chalk';
 import $ from 'jquery';
 import { createShell } from 'utilium/shell.js';
@@ -98,7 +99,7 @@ export async function exec(line: string): Promise<void> {
 const shell = createShell({
 	terminal,
 	get prompt(): string {
-		return `[pg@zenfs.dev ${path.cwd == '/root' ? '~' : path.basename(path.cwd) || '/'}]$ `;
+		return `[pg@zenfs.dev ${defaultContext.pwd == '/root' ? '~' : path.basename(defaultContext.pwd) || '/'}]$ `;
 	},
 	/**
 	 * @todo output to history file

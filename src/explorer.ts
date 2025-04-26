@@ -1,5 +1,4 @@
 import { fs } from '@zenfs/core';
-import { cwd, dirname, join } from '@zenfs/core/emulation/path.js';
 import $ from 'jquery';
 import { formatCompact } from 'utilium';
 import { cloneTemplate } from 'utilium/dom.js';
@@ -21,7 +20,7 @@ function createEntry(name: string) {
 
 	const entry = { name, li };
 
-	const stats = fs.statSync(join(cwd, entry.name));
+	const stats = fs.statSync(entry.name);
 
 	const size = formatCompact(stats.size);
 	li.find('.name').text(entry.name);
@@ -101,7 +100,7 @@ function removeEntry(entry: Entry) {
 export function update() {
 	$('#explorer ul li.entry').remove();
 
-	for (const name of fs.readdirSync(cwd)) {
+	for (const name of fs.readdirSync('.')) {
 		createEntry(name);
 	}
 }
@@ -119,7 +118,7 @@ $('#explorer').on('click', () => $('#explorer .menu').hide());
 $('#explorer').on('contextmenu', () => $('#explorer .menu').hide());
 
 $('#explorer .parent').on('click', () => {
-	openPath(dirname(cwd));
+	openPath('..');
 });
 
 const create = $<HTMLDialogElement>('#explorer dialog.create'),

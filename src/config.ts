@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/only-throw-error */
 import type { Backend, OptionsOf } from '@zenfs/core';
-import fs, { Fetch, InMemory, mounts, Overlay, Port } from '@zenfs/core';
+import fs, { Fetch, InMemory, mounts, CopyOnWrite, Port } from '@zenfs/core';
 import { WebAccess, WebStorage, IndexedDB } from '@zenfs/dom';
 import { Iso, Zip } from '@zenfs/archives';
 import $ from 'jquery';
@@ -43,7 +43,7 @@ export const backends = [
 		},
 	},
 	{
-		backend: Overlay,
+		backend: CopyOnWrite,
 		inputs: {
 			readable: {
 				placeholder: 'Readable mount',

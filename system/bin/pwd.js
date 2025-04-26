@@ -1,3 +1,3 @@
-import * as path from '@zenfs/core/path';
+import { defaultContext } from '@zenfs/core/internal/contexts.js';
 
-terminal.writeln(path.cwd);
+terminal.writeln(defaultContext.pwd);
