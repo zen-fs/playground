@@ -78,8 +78,8 @@ switch (mode) {
 	case 'dev': {
 		const ctx = await context(config);
 		await ctx.watch();
-		const { host, port } = await ctx.serve({ servedir: outdir });
-		console.log(`Development server started at http://${['127.0.0.1', '0.0.0.0'].includes(host) ? 'localhost' : host}:${port}`);
+		const { hosts, port } = await ctx.serve({ servedir: outdir });
+		console.log(`Development server started: ${hosts.map(host => `\n\thttp://${host}:${port}`).join('')}`);
 		break;
 	}
 	case 'build':
