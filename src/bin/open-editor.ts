@@ -1,1 +1,1 @@
-__editor_open(process.argv[1]);
+void __editor_open(process.argv[1]);
