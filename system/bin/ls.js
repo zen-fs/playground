@@ -1,6 +1,7 @@
 import * as utilium from 'utilium';
 import chalk from 'chalk';
 import * as path from '@zenfs/core/path';
+import fs from '@zenfs/core';
 
 const { S_IFREG, S_IFDIR, S_IFCHR, S_IFBLK, S_IFIFO, S_IFLNK, S_IFSOCK, S_IFMT } = fs.constants;
 
@@ -57,7 +58,6 @@ function colorize(text, stats) {
 	for (const [mask, color] of colors) {
 		// @ts-expect-error
 		if ((stats.mode & mask) == mask) {
-			// @ts-expect-error
 			colorize = utilium.getByString(colorize, color);
 		}
 	}

@@ -1,3 +1,5 @@
+import fs from '@zenfs/core';
+
 if (args.length != 3) {
 	throw 'Incorrect number of arguments';
 }

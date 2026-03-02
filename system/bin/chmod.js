@@ -1,3 +1,5 @@
+import fs from '@zenfs/core';
+
 const [command, mode, filePath] = args;
 
 // Helper to translate permission letters (r, w, x, etc.) to octal

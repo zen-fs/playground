@@ -1,4 +1,4 @@
-import type { fs as _fs, resolveMountConfig } from '@zenfs/core';
+import type { resolveMountConfig } from '@zenfs/core';
 import type * as _path from '@zenfs/core/path';
 import type { Terminal } from '@xterm/xterm';
 
@@ -31,9 +31,6 @@ declare global {
 	 * @internal
 	 */
 	const __mount_resolve: typeof resolveMountConfig;
-
-	// Libraries
-	const fs: typeof _fs;
 }
 
 /**
@@ -42,9 +39,6 @@ declare global {
 export interface ExecutionLocals {
 	args: typeof args;
 	terminal: typeof terminal;
-
-	/* Libraries */
-	fs: typeof fs;
 
 	/* Internal */
 	__editor_open: typeof __editor_open;
