@@ -22,7 +22,7 @@ if (!existsSync('build')) {
 	mkdirSync('build');
 }
 
-cpSync('system', 'build/system', { recursive: true });
+if (existsSync('system')) cpSync('system', 'build/system', { recursive: true });
 
 const shared_config: BuildOptions = {
 	target: 'esnext',
