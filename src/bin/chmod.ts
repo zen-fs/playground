@@ -3,7 +3,7 @@ import fs from '@zenfs/core';
 const [command, mode, filePath] = args;
 
 // Helper to translate permission letters (r, w, x, etc.) to octal
-const permissions = {
+const permissions: Record<string, number> = {
 	r: 0o4, // Read
 	w: 0o2, // Write
 	x: 0o1, // Execute
@@ -13,7 +13,7 @@ const permissions = {
 };
 
 // Helper to apply permissions to user/group/other
-function applyPermissions(currentMode, who, op, perms) {
+function applyPermissions(currentMode: number, who: string, op: string, perms: string) {
 	let targetMask = 0;
 	const isAll = who.includes('a') || !who;
 	if (who.includes('u')) targetMask |= 0o700; // User

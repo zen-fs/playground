@@ -44,6 +44,13 @@ for (const specifier of ['@zenfs/core', 'utilium', 'chalk', '@zenfs/core/path'])
 	});
 }
 
+const bin_config: BuildOptions = {
+	...shared_config,
+	outdir: outdir + '/system/bin',
+	packages: 'external',
+	entryPoints: ['src/bin/*.ts'],
+};
+
 const config: BuildOptions = {
 	...shared_config,
 	entryPoints: ['src/index.ts', 'src/index.html', 'src/styles.css'],
@@ -57,9 +64,10 @@ const config: BuildOptions = {
 	},
 	plugins: [
 		{
-			name: 'build-libs',
+			name: 'build-system',
 			setup({ onStart }: PluginBuild): void | Promise<void> {
 				onStart(async () => {
+					await build(bin_config);
 					await build(lib_config);
 					execSync('npx make-index build/system -o build/index.json -q', { stdio: 'inherit' });
 				});

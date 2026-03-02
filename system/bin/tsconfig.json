@@ -1,9 +1,0 @@
-{
-	"compilerOptions": {
-		"module": "NodeNext",
-		"moduleResolution": "NodeNext",
-		"checkJs": true,
-		"noEmit": true
-	},
-	"include": ["./*", "./lib.d.ts"]
-}

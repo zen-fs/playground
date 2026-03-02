@@ -5,8 +5,8 @@ import fs from '@zenfs/core';
 
 const { S_IFREG, S_IFDIR, S_IFCHR, S_IFBLK, S_IFIFO, S_IFLNK, S_IFSOCK, S_IFMT } = fs.constants;
 
-function formatPermissions(mode) {
-	const types = {
+function formatPermissions(mode: number) {
+	const types: Record<number, string> = {
 		[S_IFREG]: '-',
 		[S_IFDIR]: 'd',
 		[S_IFCHR]: 'c',
@@ -32,7 +32,7 @@ function formatPermissions(mode) {
 	);
 }
 
-function formatSize(size) {
+function formatSize(size: number) {
 	const units = ['', 'K', 'M', 'G', 'T'];
 	let index = 0;
 
@@ -51,12 +51,11 @@ const colors = [
 	[0o001, 'green'],
 	[S_IFDIR, 'blue'],
 	[S_IFLNK, 'cyan'],
-];
+] as const;
 
-function colorize(text, stats) {
+function colorize(text: string, stats: fs.Stats) {
 	let colorize = chalk;
 	for (const [mask, color] of colors) {
-		// @ts-expect-error
 		if ((stats.mode & mask) == mask) {
 			colorize = utilium.getByString(colorize, color);
 		}
@@ -87,7 +86,7 @@ const maxLength = files.reduce((max, file) => Math.max(max, file.length), 0);
 
 const numColumns = Math.floor(terminal.cols / (maxLength + 1));
 const columnLengths = new Array(numColumns).fill(0);
-const columnInfo = {};
+const columnInfo: Record<string, [number, number]> = {};
 
 if (shortFormat) {
 	for (const file of files) {
@@ -110,7 +109,7 @@ for (const file of files) {
 		continue;
 	}
 
-	let sym = [];
+	const sym = [];
 	if (stats.isSymbolicLink()) {
 		const linkTarget = fs.readlinkSync(path.join(target, file));
 		sym.push('->', fs.existsSync(linkTarget) ? linkTarget : chalk.bgRed(linkTarget));

@@ -14,14 +14,14 @@ const dateFormatter = new Intl.DateTimeFormat('en-US', {
 	timeZoneName: 'shortOffset',
 });
 
-function formatDate(date) {
+function formatDate(date: Date): string {
 	return dateFormatter.format(date);
 }
 
-function formatPermissions(mode) {
+function formatPermissions(mode: number) {
 	const fileType = mode & fs.constants.S_IFMT;
 
-	const types = {
+	const types: Record<number, string> = {
 		[S_IFREG]: '-',
 		[S_IFDIR]: 'd',
 		[S_IFCHR]: 'c',
@@ -48,7 +48,7 @@ function formatPermissions(mode) {
 	return `${type}${symbols}`;
 }
 
-const types = {
+const types: Record<number, string> = {
 	[S_IFREG]: 'regular file',
 	[S_IFDIR]: 'directory',
 	[S_IFCHR]: 'character special file',

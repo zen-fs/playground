@@ -25,12 +25,6 @@ declare global {
 	 * @internal
 	 */
 	function __open(path: string, dirOnly?: boolean): void;
-
-	/**
-	 * Resolves a mount with the given configuration
-	 * @internal
-	 */
-	const __mount_resolve: typeof resolveMountConfig;
 }
 
 /**
@@ -43,5 +37,4 @@ export interface ExecutionLocals {
 	/* Internal */
 	__editor_open: typeof __editor_open;
 	__open: typeof __open;
-	__mount_resolve: typeof __mount_resolve;
 }
