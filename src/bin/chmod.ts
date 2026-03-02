@@ -1,27 +1,22 @@
 import * as fs from '@zenfs/core';
 
-const [command, mode, filePath] = process.argv;
-
-// Helper to translate permission letters (r, w, x, etc.) to octal
 const permissions: Record<string, number> = {
-	r: 0o4, // Read
-	w: 0o2, // Write
-	x: 0o1, // Execute
-	X: 0o1, // Execute if directory or already executable
-	s: 0o4000, // Set user ID
-	t: 0o1000, // Sticky bit
+	r: 0o4,
+	w: 0o2,
+	x: 0o1,
+	X: 0o1,
+	s: 0o4000,
+	t: 0o1000,
 };
 
-// Helper to apply permissions to user/group/other
-function applyPermissions(currentMode: number, who: string, op: string, perms: string) {
+function applyPermissions(currentMode: number, filePath: string, who: string, op: string, perms: string) {
 	let targetMask = 0;
 	const isAll = who.includes('a') || !who;
-	if (who.includes('u')) targetMask |= 0o700; // User
-	if (who.includes('g')) targetMask |= 0o070; // Group
-	if (who.includes('o')) targetMask |= 0o007; // Others
-	if (who.includes('a') || !who) targetMask |= 0o777; // All or no 'who'
+	if (who.includes('u')) targetMask |= 0o700;
+	if (who.includes('g')) targetMask |= 0o070;
+	if (who.includes('o')) targetMask |= 0o007;
+	if (who.includes('a') || !who) targetMask |= 0o777;
 
-	// Parse each permission character and apply based on the operator
 	let permissionBits = 0;
 	for (const perm of perms.split('')) {
 		const bit = permissions[perm];
@@ -32,12 +27,10 @@ function applyPermissions(currentMode: number, who: string, op: string, perms: s
 			isDir = fs.statSync(filePath).isDirectory();
 		} catch {}
 
-		// Skip applying 'X' unless already executable or directory
 		if (perm === 'X' && !(currentMode & 0o111 || isDir)) {
 			break;
 		}
 
-		// Set the respective bits for 's' and 't'
 		if (perm === 's' || perm === 't') {
 			permissionBits |= bit;
 			continue;
@@ -75,22 +68,29 @@ function applyPermissions(currentMode: number, who: string, op: string, perms: s
 	return currentMode;
 }
 
-let currentMode = fs.statSync(filePath).mode & 0o777;
+export default function main(...args: string[]) {
+	const [, mode, ...filePaths] = args;
 
-function parseMode() {
-	if (/^[0-7]{3}$/.test(mode)) {
-		// Octal mode
-		return parseInt(mode, 8);
+	if (!mode || !filePaths.length) {
+		terminal.writeln('chmod: missing operand');
+		return;
 	}
 
-	// Symbolic mode handling
-	const modeRegex = /([ugoa]*)([-+=])([rwxXstugo]+)/g;
-	let match;
-	while ((match = modeRegex.exec(mode)) !== null) {
-		currentMode = applyPermissions(currentMode, match[1] || 'a', match[2], match[3]);
+	function parseMode(path: string, current: number) {
+		if (/^[0-7]{3}$/.test(mode)) {
+			return parseInt(mode, 8);
+		}
+
+		const modeRegex = /([ugoa]*)([-+=])([rwxXstugo]+)/g;
+		let match;
+		while ((match = modeRegex.exec(mode)) !== null) {
+			current = applyPermissions(current, path, match[1] || 'a', match[2], match[3]);
+		}
+
+		return current;
 	}
 
-	return currentMode;
+	for (const filePath of filePaths) {
+		fs.chmodSync(filePath, parseMode(filePath, fs.statSync(filePath).mode & 0o777));
+	}
 }
-
-fs.chmodSync(filePath, parseMode());

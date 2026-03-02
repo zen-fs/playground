@@ -15,7 +15,7 @@ function* parseArgTokens(line: string): Generator<string> {
 		else if (m[3] != null) {
 			const token = unescapeToken(m[3]);
 			if (!token.includes('*')) yield token;
-			else yield* fs.globSync(token).sort();
+			else yield* fs.globSync(token);
 		}
 	}
 }
