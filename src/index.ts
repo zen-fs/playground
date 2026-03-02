@@ -30,6 +30,15 @@ location.on('change', () => {
 	openPath(value);
 });
 
-void exec('/bin/sh.js', [], { PATH: '/bin' });
+void exec('/bin/sh', [], {
+	PATH: '/bin',
+	SHELL: '/bin/sh',
+	get PWD() {
+		return defaultContext.pwd;
+	},
+	set PWD(value) {
+		defaultContext.pwd = value;
+	},
+});
 
 Object.assign(globalThis, { fs });

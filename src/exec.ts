@@ -80,5 +80,6 @@ export default async function exec(filename: string, args: string[], env: Record
 		noAggregateLoadErrors: true,
 	});
 
-	await compartment.import('$$main$$');
+	const { namespace: main } = await compartment.import('$$main$$');
+	if ('default' in main && typeof main.default == 'function') await main.default(...args);
 }

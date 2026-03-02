@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 import { build, context, type BuildOptions, type PluginBuild } from 'esbuild';
 import { execSync } from 'node:child_process';
-import { cpSync, existsSync, mkdirSync } from 'node:fs';
+import { cpSync, existsSync, mkdirSync, readdirSync, renameSync } from 'node:fs';
+import { join } from 'node:path/posix';
 import { fileURLToPath } from 'node:url';
 import { parseArgs } from 'node:util';
 
@@ -68,6 +69,11 @@ const config: BuildOptions = {
 			setup({ onStart }: PluginBuild): void | Promise<void> {
 				onStart(async () => {
 					await build(bin_config);
+					for (const file of readdirSync(bin_config.outdir!)) {
+						if (!file.endsWith('.js')) continue;
+						const p = join(bin_config.outdir!, file);
+						renameSync(p, p.slice(0, -3));
+					}
 					await build(lib_config);
 					execSync('npx make-index build/system -o build/index.json -q', { stdio: 'inherit' });
 				});
