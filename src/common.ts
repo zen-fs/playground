@@ -1,9 +1,14 @@
-import { configure, Fetch, fs, InMemory, CopyOnWrite, normalizePath } from '@zenfs/core';
+import { configure, Fetch, fs, InMemory, CopyOnWrite, normalizePath, type OptionsOf } from '@zenfs/core';
 import { resolve } from '@zenfs/core/path';
 import { defaultContext } from '@zenfs/core/internal/contexts.js';
 import $ from 'jquery';
 import * as editor from './editor.js';
 import { update as updateExplorer } from './explorer.js';
+
+const fetchOptions: OptionsOf<typeof Fetch> = {
+	baseUrl: new URL('./system', window.location.href).href,
+	index: './index.json',
+};
 
 await configure({
 	mounts: {
@@ -11,8 +16,7 @@ await configure({
 			backend: CopyOnWrite,
 			readable: {
 				backend: Fetch,
-				baseUrl: './system',
-				index: './index.json',
+				...fetchOptions,
 			},
 			writable: { backend: InMemory, label: 'root-cow' },
 		},

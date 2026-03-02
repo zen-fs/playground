@@ -3,7 +3,7 @@ import { FitAddon } from '@xterm/addon-fit';
 import { WebLinksAddon } from '@xterm/addon-web-links';
 import { Terminal } from '@xterm/xterm';
 import { resolveMountConfig as __mount_resolve, fs } from '@zenfs/core';
-import { X_OK } from '@zenfs/core/emulation/constants.js';
+import { X_OK } from '@zenfs/core/constants';
 import { defaultContext } from '@zenfs/core/internal/contexts.js';
 import * as path from '@zenfs/core/path';
 import chalk from 'chalk';
