@@ -13,7 +13,7 @@ declare global {
 	 */
 	function __editor_open(path: string): Promise<void>;
 
-	async function exec(filename: string, args: string[], env: Record<string, string | undefined>): Promise<void>;
+	function exec(filename: string, args: string[], env: Record<string, string | undefined>): Promise<void>;
 
 	function createShell(options: ShellOptions): ShellContext;
 
