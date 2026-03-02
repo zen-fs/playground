@@ -1,11 +1,6 @@
 import * as fs from '@zenfs/core';
 import * as path from '@zenfs/core/path';
 
-function getPath(): string[] {
-	process.env.PATH ||= '/bin';
-	return process.env.PATH.split(':');
-}
-
 const argPattern = /\s*(?:'([^']*)'|"((?:\\.|[^"\\])*)"|((?:\\.|[^\s"'\\])+))\s*/g;
 const nonEscapedLF = /(?<!\\)(?:\\\\)*\n/;
 
@@ -32,7 +27,7 @@ async function _execLine(line: string) {
 
 		let file: string | undefined;
 
-		for (const dir of getPath()) {
+		for (const dir of (process.env.PATH ||= '/bin').split(':')) {
 			const p = path.join(dir, args[0]);
 			if (fs.existsSync(p)) file = p;
 		}
