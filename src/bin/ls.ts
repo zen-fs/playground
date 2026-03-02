@@ -51,6 +51,8 @@ const colors = [
 	[0o001, 'green'],
 	[S_IFDIR, 'blue'],
 	[S_IFLNK, 'cyan'],
+	[S_IFBLK, 'yellow'],
+	[S_IFCHR, 'yellow'],
 ] as const;
 
 function colorize(text: string, stats: fs.Stats) {
