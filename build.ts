@@ -24,7 +24,7 @@ if (!existsSync('build')) {
 cpSync('system', 'build/system', { recursive: true });
 
 const shared_config: BuildOptions = {
-	target: 'es2022',
+	target: 'esnext',
 	keepNames: true,
 	bundle: true,
 	format: 'esm',
@@ -37,7 +37,7 @@ const lib_config: BuildOptions & { entryPoints: { in: string; out: string }[] } 
 	outdir: outdir + '/system/lib',
 };
 
-for (const specifier of ['@zenfs/core', 'utilium', 'chalk', '@zenfs/core/path']) {
+for (const specifier of ['@zenfs/core', 'utilium', 'utilium/shell.js', 'chalk', '@zenfs/core/path']) {
 	lib_config.entryPoints.push({
 		in: fileURLToPath(import.meta.resolve(specifier)),
 		out: specifier,

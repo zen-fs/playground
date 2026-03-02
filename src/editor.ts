@@ -23,9 +23,7 @@ function updateButtons() {
 
 export async function open(this: void, path?: string | void) {
 	path ??= await prompt('Open file');
-	if (!path) {
-		return;
-	}
+	if (!path) return;
 	file = path;
 	const data = fs.readFileSync(file, 'utf-8');
 	content.val(data);

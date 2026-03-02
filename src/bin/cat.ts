@@ -1,6 +1,6 @@
-import fs from '@zenfs/core';
+import * as fs from '@zenfs/core';
 
-if (!args[1]) {
+if (!process.argv[1]) {
 	throw 'No path provided';
 }
-terminal.writeln(fs.readFileSync(args[1], 'utf8'));
+terminal.writeln(fs.readFileSync(process.argv[1], 'utf8'));

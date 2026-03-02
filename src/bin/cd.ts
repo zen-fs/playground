@@ -1,3 +1,3 @@
 import * as path from '@zenfs/core/path';
 
-__open(args[1] || path.resolve('.'), true);
+process.chdir(process.argv[2] || path.resolve('.'));

@@ -1,5 +1,5 @@
 import chalk from 'chalk';
-import fs from '@zenfs/core';
+import * as fs from '@zenfs/core';
 import * as path from '@zenfs/core/path';
 
 const { S_IFREG, S_IFDIR, S_IFCHR, S_IFBLK, S_IFIFO, S_IFLNK, S_IFSOCK } = fs.constants;
@@ -58,7 +58,7 @@ const types: Record<number, string> = {
 	[S_IFSOCK]: 'socket',
 };
 
-const filePath = args[1] || path.resolve('.') || '/';
+const filePath = process.argv[1] || path.resolve('.') || '/';
 
 const stats = fs.lstatSync(filePath);
 

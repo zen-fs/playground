@@ -1,6 +1,6 @@
-import fs from '@zenfs/core';
+import * as fs from '@zenfs/core';
 
-if (args.length != 3) {
+if (process.argv.length != 3) {
 	throw 'Incorrect number of arguments';
 }
-fs.cpSync(args[1], args[2]);
+fs.cpSync(process.argv[1], process.argv[2]);

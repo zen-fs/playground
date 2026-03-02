@@ -1,10 +1,10 @@
-import fs from '@zenfs/core';
+import * as fs from '@zenfs/core';
 
-if (!args[1]) {
+if (!process.argv[1]) {
 	throw 'No path provided';
 }
-if (fs.existsSync(args[1])) {
-	fs.utimesSync(args[1], Date.now(), Date.now());
+if (fs.existsSync(process.argv[1])) {
+	fs.utimesSync(process.argv[1], Date.now(), Date.now());
 } else {
-	fs.writeFileSync(args[1], '');
+	fs.writeFileSync(process.argv[1], '');
 }

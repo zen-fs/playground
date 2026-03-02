@@ -1,1 +1,1 @@
-terminal.writeln(args.slice(1).join(' '));
+terminal.writeln(process.argv.slice(1).join(' '));

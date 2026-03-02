@@ -1,6 +1,6 @@
-import fs from '@zenfs/core';
+import * as fs from '@zenfs/core';
 
-if (!args[1]) {
+if (!process.argv[1]) {
 	throw 'No path provided';
 }
-fs.mkdirSync(args[1]);
+fs.mkdirSync(process.argv[1]);

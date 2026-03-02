@@ -1,7 +1,7 @@
 import * as utilium from 'utilium';
 import chalk from 'chalk';
 import * as path from '@zenfs/core/path';
-import fs from '@zenfs/core';
+import * as fs from '@zenfs/core';
 
 const { S_IFREG, S_IFDIR, S_IFCHR, S_IFBLK, S_IFIFO, S_IFLNK, S_IFSOCK, S_IFMT } = fs.constants;
 
@@ -71,9 +71,9 @@ const formatter = new Intl.DateTimeFormat('en-US', {
 	hour12: false,
 });
 
-const shortFormat = !args.includes('-l');
+const shortFormat = !process.argv.includes('-l');
 
-let target = args.slice(1).filter(arg => !arg.startsWith('-'))[0] || '.';
+let target = process.argv.slice(1).filter(arg => !arg.startsWith('-'))[0] || '.';
 
 const isDir = fs.statSync(target).isDirectory();
 const files = isDir ? fs.readdirSync(target) : [path.basename(target)];

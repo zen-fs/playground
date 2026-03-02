@@ -1,9 +1,10 @@
-import { configure, Fetch, fs, InMemory, CopyOnWrite, normalizePath, type OptionsOf } from '@zenfs/core';
+import { configure, Fetch, fs, InMemory, CopyOnWrite, normalizePath, type OptionsOf, addDevice } from '@zenfs/core';
 import { resolve } from '@zenfs/core/path';
 import { defaultContext } from '@zenfs/core/internal/contexts.js';
 import $ from 'jquery';
 import * as editor from './editor.js';
 import { update as updateExplorer } from './explorer.js';
+import { TTY } from './tty.js';
 
 const fetchOptions: OptionsOf<typeof Fetch> = {
 	baseUrl: new URL('./system', window.location.href).href,
@@ -22,7 +23,10 @@ await configure({
 		},
 	},
 	addDevices: true,
+	defaultDirectories: true,
 });
+
+addDevice(TTY);
 
 export function switchTab(name: string): void {
 	$('.tab').hide();

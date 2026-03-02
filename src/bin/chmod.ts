@@ -1,6 +1,6 @@
-import fs from '@zenfs/core';
+import * as fs from '@zenfs/core';
 
-const [command, mode, filePath] = args;
+const [command, mode, filePath] = process.argv;
 
 // Helper to translate permission letters (r, w, x, etc.) to octal
 const permissions: Record<string, number> = {
@@ -24,13 +24,13 @@ function applyPermissions(currentMode: number, who: string, op: string, perms: s
 	// Parse each permission character and apply based on the operator
 	let permissionBits = 0;
 	for (const perm of perms.split('')) {
-		let bit = permissions[perm];
+		const bit = permissions[perm];
 		if (!bit) throw new Error('Invalid permission: ' + perm);
 
 		let isDir;
 		try {
 			isDir = fs.statSync(filePath).isDirectory();
-		} catch (_) {}
+		} catch {}
 
 		// Skip applying 'X' unless already executable or directory
 		if (perm === 'X' && !(currentMode & 0o111 || isDir)) {

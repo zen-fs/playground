@@ -1,6 +1,6 @@
-import fs from '@zenfs/core';
+import * as fs from '@zenfs/core';
 
-if (!args[1]) {
+if (!process.argv[1]) {
 	throw 'No path provided';
 }
-fs.unlinkSync(args[1]);
+fs.unlinkSync(process.argv[1]);
