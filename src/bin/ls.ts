@@ -71,65 +71,75 @@ const formatter = new Intl.DateTimeFormat('en-US', {
 	hour12: false,
 });
 
-const shortFormat = !process.argv.includes('-l');
+function listTarget(target: string, shortFormat: boolean) {
+	const isDir = fs.statSync(target).isDirectory();
+	const files = isDir ? fs.readdirSync(target) : [path.basename(target)];
 
-let target = process.argv.slice(1).filter(arg => !arg.startsWith('-'))[0] || '.';
-
-const isDir = fs.statSync(target).isDirectory();
-const files = isDir ? fs.readdirSync(target) : [path.basename(target)];
-
-if (!isDir) {
-	target = path.dirname(target);
-}
-
-const maxLength = files.reduce((max, file) => Math.max(max, file.length), 0);
-
-const numColumns = Math.floor(terminal.cols / (maxLength + 1));
-const columnLengths = new Array(numColumns).fill(0);
-const columnInfo: Record<string, [number, number]> = {};
-
-if (shortFormat) {
-	for (const file of files) {
-		const i = files.indexOf(file) % numColumns;
-		columnInfo[file] = [i, file.length];
-		columnLengths[i] = Math.max(columnLengths[i], file.length + 3);
+	if (!isDir) {
+		target = path.dirname(target);
 	}
-}
 
-for (const file of files) {
-	const stats = fs.lstatSync(path.join(target, file));
+	const maxLength = files.reduce((max, file) => Math.max(max, file.length), 0);
+
+	const numColumns = Math.floor(terminal.cols / (maxLength + 1));
+	const columnLengths = new Array(numColumns).fill(0);
+	const columnInfo: Record<string, [number, number]> = {};
 
 	if (shortFormat) {
-		const [i, length] = columnInfo[file];
-		const colored = colorize(file, stats);
-		terminal.write(colored.padEnd(colored.length - length + columnLengths[i]));
-		if (i == numColumns - 1) {
-			terminal.write('\n');
+		for (const file of files) {
+			const i = files.indexOf(file) % numColumns;
+			columnInfo[file] = [i, file.length];
+			columnLengths[i] = Math.max(columnLengths[i], file.length + 3);
 		}
-		continue;
 	}
 
-	const sym = [];
-	if (stats.isSymbolicLink()) {
-		const linkTarget = fs.readlinkSync(path.join(target, file));
-		sym.push('->', fs.existsSync(linkTarget) ? linkTarget : chalk.bgRed(linkTarget));
+	for (const file of files) {
+		const stats = fs.lstatSync(path.join(target, file));
+
+		if (shortFormat) {
+			const [i, length] = columnInfo[file];
+			const colored = colorize(file, stats);
+			terminal.write(colored.padEnd(colored.length - length + columnLengths[i]));
+			if (i == numColumns - 1) terminal.write('\n');
+			continue;
+		}
+
+		const sym = [];
+		if (stats.isSymbolicLink()) {
+			const linkTarget = fs.readlinkSync(path.join(target, file));
+			sym.push('->', fs.existsSync(linkTarget) ? linkTarget : chalk.bgRed(linkTarget));
+		}
+
+		const parts = [
+			formatPermissions(stats.mode),
+			stats.nlink,
+			stats.uid.toString().padStart(4),
+			stats.gid.toString().padStart(4),
+			formatSize(stats.size),
+			formatter.format(stats.mtime).replaceAll(',', ''),
+			colorize(file, stats),
+			...sym,
+		];
+
+		terminal.writeln(parts.join(' '));
 	}
 
-	const parts = [
-		formatPermissions(stats.mode),
-		stats.nlink,
-		stats.uid.toString().padStart(4),
-		stats.gid.toString().padStart(4),
-		formatSize(stats.size),
-		formatter.format(stats.mtime).replaceAll(',', ''),
-		colorize(file, stats),
-		...sym,
-	];
-
-	terminal.writeln(parts.join(' '));
+	// New line at the end of the output
+	if (shortFormat) {
+		terminal.write('\n');
+	}
 }
 
-// New line at the end of the output
-if (shortFormat) {
-	terminal.write('\n');
+export default function main(ls: string, ...args: string[]) {
+	const flags = args.filter(arg => arg.startsWith('-'));
+	const targets = args.filter(arg => !arg.startsWith('-'));
+	const shortFormat = !flags.includes('-l');
+
+	if (!targets.length) targets.push('.');
+
+	for (const target of targets) {
+		if (targets.length > 1) terminal.writeln(`${target}:`);
+		listTarget(target, shortFormat);
+		if (targets.length > 1) terminal.write('\n');
+	}
 }

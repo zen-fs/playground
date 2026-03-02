@@ -17,7 +17,11 @@ function* parseArgTokens(line: string): Generator<string> {
 	for (const m of line.trim().matchAll(argPattern)) {
 		if (m[1] != null) yield m[1];
 		else if (m[2] != null) yield unescapeToken(m[2]);
-		else if (m[3] != null) yield unescapeToken(m[3]);
+		else if (m[3] != null) {
+			const token = unescapeToken(m[3]);
+			if (!token.includes('*')) yield token;
+			else yield* fs.globSync(token).sort();
+		}
 	}
 }
 
@@ -42,9 +46,9 @@ async function _execLine(line: string) {
 	}
 }
 
-export default async function main(...args: string[]) {
-	if (args.length > 1) {
-		const [, file] = args;
+export default async function main(sh: string, ...args: string[]) {
+	if (args.length) {
+		const [file] = args;
 		const content = fs.readFileSync(file, 'utf8');
 		for (const line of content.split(nonEscapedLF)) await _execLine(line);
 		return;
@@ -52,7 +56,7 @@ export default async function main(...args: string[]) {
 	const shell = createShell({
 		terminal,
 		get prompt(): string {
-			return `[pg@zenfs.dev ${process.cwd() == '/root' ? '~' : path.basename(process.cwd()) || '/'}]$ `;
+			return `[${process.env.USERNAME}@${process.env.HOSTNAME} ${process.cwd() == '/root' ? '~' : path.basename(process.cwd()) || '/'}]$ `;
 		},
 		onLine: _execLine,
 	});

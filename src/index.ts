@@ -31,14 +31,19 @@ location.on('change', () => {
 });
 
 void exec('/bin/sh', [], {
-	PATH: '/bin',
 	SHELL: '/bin/sh',
+	HOSTNAME: 'zenfs.dev',
+	EDITOR: '/bin/open-editor',
 	get PWD() {
 		return defaultContext.pwd;
 	},
 	set PWD(value) {
 		defaultContext.pwd = value;
 	},
+	USERNAME: 'pg',
+	TERM: 'xterm-256color',
+	USER: 'pg',
+	PATH: '/bin',
 });
 
 Object.assign(globalThis, { fs });
