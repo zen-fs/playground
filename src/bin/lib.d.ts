@@ -16,8 +16,6 @@ declare global {
 	function exec(filename: string, args: string[], env: Record<string, string | undefined>): Promise<void>;
 
 	function createShell(options: ShellOptions): ShellContext;
-
-	function $load(specifier: string): any;
 }
 
 /**
