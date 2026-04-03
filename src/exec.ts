@@ -5,9 +5,9 @@ import { UV } from 'kerium';
 import { ttyConsole, terminal } from './tty.js';
 import { open as __editor_open } from './editor.js';
 import 'ses';
-import { createShell } from 'utilium/shell.js';
+import { createShell } from 'utilium/shell';
 import type { NamespaceModuleDescriptor } from 'ses';
-import { pick } from 'utilium/objects.js';
+import { pick } from 'utilium/objects';
 import chalk from 'chalk';
 
 globalThis.process = { env: {} } as any;

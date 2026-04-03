@@ -1,5 +1,5 @@
 import type { Terminal } from '@xterm/xterm';
-import type { createShell, ShellOptions, ShellContext } from 'utilium/shell.js';
+import type { createShell, ShellOptions, ShellContext } from 'utilium/shell';
 
 declare global {
 	/**

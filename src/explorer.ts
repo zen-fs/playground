@@ -1,7 +1,7 @@
 import { fs } from '@zenfs/core';
 import $ from 'jquery';
 import { formatCompact } from 'utilium';
-import { cloneTemplate } from 'utilium/dom.js';
+import { cloneTemplate } from 'utilium/dom';
 import { confirm, openPath } from './common.js';
 
 export const location = $<HTMLInputElement>('#location');

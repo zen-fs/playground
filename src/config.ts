@@ -5,8 +5,8 @@ import { WebAccess, WebStorage, IndexedDB } from '@zenfs/dom';
 import { Iso, Zip } from '@zenfs/archives';
 import $ from 'jquery';
 import { randomHex, type Entries } from 'utilium';
-import { cloneTemplate } from 'utilium/dom.js';
-import { download, upload } from 'utilium/dom.js';
+import { cloneTemplate } from 'utilium/dom';
+import { download, upload } from 'utilium/dom';
 
 export type HTMLAttributeName = 'id' | 'class' | 'style' | 'href' | 'src' | 'alt' | 'title' | 'placeholder';
 
