@@ -8,7 +8,7 @@ import 'ses';
 import { createShell } from 'utilium/shell';
 import type { NamespaceModuleDescriptor } from 'ses';
 import { pick } from 'utilium/objects';
-import chalk from 'chalk';
+import * as util from './util.js';
 
 globalThis.process = { env: {} } as any;
 const { ModuleSource } = await import('@endo/module-source');
@@ -20,7 +20,8 @@ const modules: Record<string, NamespaceModuleDescriptor> = {
 	path: { namespace: path },
 	'@zenfs/core': { namespace: fs },
 	'@zenfs/core/path': { namespace: path },
-	chalk: { namespace: { default: chalk } },
+	util: { namespace: util },
+	'node:util': { namespace: util },
 };
 
 export default async function exec(filename: string, args: string[], env: Record<string, string>): Promise<void> {

@@ -1,4 +1,4 @@
-import chalk from 'chalk';
+import { styleText } from 'util';
 import * as fs from '@zenfs/core';
 import * as path from '@zenfs/core/path';
 
@@ -64,12 +64,12 @@ const stats = fs.lstatSync(filePath);
 
 // Write the output to the terminal
 terminal.write(`
-  File: ${chalk.blue(filePath)}
-  Size: ${chalk.green(stats.size)}\tBlocks: ${chalk.green(stats.blocks)}\tIO Block: ${chalk.green(stats.blksize)}\t${chalk.yellow(types[stats.mode & fs.constants.S_IFMT] || 'unknown')}
-Device: ${chalk.cyan(stats.dev.toString(16))}\tInode: ${chalk.cyan(stats.ino)}\tLinks: ${chalk.cyan(stats.nlink)}
-Access: (${chalk.yellow((stats.mode & 0o777).toString(8))}/${chalk.yellow(formatPermissions(stats.mode))})  Uid: (${chalk.green(stats.uid)})   Gid: (${chalk.green(stats.gid)})
-Access: ${chalk.magenta(formatDate(stats.atime))}
-Modify: ${chalk.magenta(formatDate(stats.mtime))}
-Change: ${chalk.magenta(formatDate(stats.ctime))}
-Birth : ${chalk.magenta(formatDate(stats.birthtime))}
+  File: ${styleText('blue', filePath)}
+  Size: ${styleText('green', `${stats.size}`)}\tBlocks: ${styleText('green', `${stats.blocks}`)}\tIO Block: ${styleText('green', `${stats.blksize}`)}\t${styleText('yellow', types[stats.mode & fs.constants.S_IFMT] || 'unknown')}
+Device: ${styleText('cyan', stats.dev.toString(16))}\tInode: ${styleText('cyan', `${stats.ino}`)}\tLinks: ${styleText('cyan', `${stats.nlink}`)}
+Access: (${styleText('yellow', (stats.mode & 0o777).toString(8))}/${styleText('yellow', formatPermissions(stats.mode))})  Uid: (${styleText('green', `${stats.uid}`)})   Gid: (${styleText('green', `${stats.gid}`)})
+Access: ${styleText('magenta', formatDate(stats.atime))}
+Modify: ${styleText('magenta', formatDate(stats.mtime))}
+Change: ${styleText('magenta', formatDate(stats.ctime))}
+Birth : ${styleText('magenta', formatDate(stats.birthtime))}
 `);

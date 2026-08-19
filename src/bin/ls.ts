@@ -1,5 +1,4 @@
-import * as utilium from 'utilium';
-import chalk from 'chalk';
+import { styleText } from 'util';
 import * as path from '@zenfs/core/path';
 import * as fs from '@zenfs/core';
 
@@ -56,13 +55,8 @@ const colors = [
 ] as const;
 
 function colorize(text: string, stats: fs.Stats) {
-	let colorize = chalk;
-	for (const [mask, color] of colors) {
-		if ((stats.mode & mask) == mask) {
-			colorize = utilium.getByString(colorize, color);
-		}
-	}
-	return colorize(text);
+	const formats = colors.filter(([mask]) => (stats.mode & mask) == mask).map(([, color]) => color);
+	return formats.length ? styleText(formats, text) : text;
 }
 
 const formatter = new Intl.DateTimeFormat('en-US', {
@@ -108,8 +102,8 @@ function listTarget(target: string, shortFormat: boolean) {
 
 		const sym = [];
 		if (stats.isSymbolicLink()) {
-			const linkTarget = fs.readlinkSync(path.join(target, file));
-			sym.push('->', fs.existsSync(linkTarget) ? linkTarget : chalk.bgRed(linkTarget));
+			const linkTarget = fs.readlinkSync(path.join(target, file), 'utf-8');
+			sym.push('->', fs.existsSync(linkTarget) ? linkTarget : styleText('bgRed', linkTarget));
 		}
 
 		const parts = [

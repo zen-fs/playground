@@ -2,10 +2,7 @@ import { FitAddon } from '@xterm/addon-fit';
 import { WebLinksAddon } from '@xterm/addon-web-links';
 import { Terminal } from '@xterm/xterm';
 import type { DeviceDriver } from '@zenfs/core';
-import chalk from 'chalk';
 import $ from 'jquery';
-
-chalk.level = 2;
 
 export const terminal = new Terminal({
 	convertEol: true,
