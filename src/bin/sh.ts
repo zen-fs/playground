@@ -36,7 +36,7 @@ async function _execLine(line: string) {
 
 		await exec(file, args, process.env);
 	} catch (error: any) {
-		if (process.env.DEBUG && error instanceof Error) terminal.writeln(error.stack!);
+		if (process.env.DEBUG && Error.isError(error)) terminal.writeln(error.stack!);
 		terminal.writeln('Error: ' + (error.message ?? error));
 	}
 }
