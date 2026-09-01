@@ -30,6 +30,10 @@ location.on('change', () => {
 	openPath(value);
 });
 
+const search = new URLSearchParams(window.location.search);
+
+if (search.has('tab')) switchTab(search.get('tab')!);
+
 void exec('/bin/sh', [], {
 	SHELL: '/bin/sh',
 	HOSTNAME: 'zenfs.dev',
