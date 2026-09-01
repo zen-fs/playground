@@ -1,32 +1,29 @@
-import { configure, Fetch, fs, InMemory, CopyOnWrite, normalizePath, type OptionsOf, addDevice } from '@zenfs/core';
+import { CopyOnWrite, Fetch, fs, InMemory, mount, normalizePath, resolveMountConfig, umount, type OptionsOf } from '@zenfs/core';
 import { resolve } from '@zenfs/core/path';
 import { defaultContext } from '@zenfs/core/internal/contexts.js';
+import { init } from '@zenfs/linux';
 import $ from 'jquery';
 import * as editor from './editor.js';
 import { update as updateExplorer } from './explorer.js';
-import { TTY } from './tty.js';
+import { attach_terminal } from './tty.js';
 
 const fetchOptions: OptionsOf<typeof Fetch> = {
 	baseUrl: new URL('./system', window.location.href).href,
 	index: './index.json',
 };
 
-await configure({
-	mounts: {
-		'/': {
-			backend: CopyOnWrite,
-			readable: {
-				backend: Fetch,
-				...fetchOptions,
-			},
-			writable: { backend: InMemory, label: 'root-cow' },
-		},
-	},
-	addDevices: true,
-	defaultDirectories: true,
-});
+umount('/');
+mount(
+	'/',
+	await resolveMountConfig({
+		backend: CopyOnWrite,
+		readable: { backend: Fetch, ...fetchOptions },
+		writable: { backend: InMemory, label: 'root-cow' },
+	})
+);
 
-addDevice(TTY);
+await init();
+attach_terminal();
 
 export function switchTab(name: string): void {
 	$('.tab').hide();
