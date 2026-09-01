@@ -76,7 +76,7 @@ const config: BuildOptions = {
 						renameSync(p, p.slice(0, -3));
 					}
 					await build(lib_config);
-					execSync('npx make-index build/system -o build/index.json -q', { stdio: 'inherit' });
+					execSync('npx -s make-index build/system -o build/index.json -q', { stdio: 'inherit' });
 				});
 			},
 		},
