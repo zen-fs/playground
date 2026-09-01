@@ -1,6 +1,7 @@
+import type { InspectColor } from 'node:util';
 import { styleText } from 'util';
-import * as path from '@zenfs/core/path';
-import * as fs from '@zenfs/core';
+import * as path from 'path';
+import * as fs from 'fs';
 
 const { S_IFREG, S_IFDIR, S_IFCHR, S_IFBLK, S_IFIFO, S_IFLNK, S_IFSOCK, S_IFMT } = fs.constants;
 
@@ -44,19 +45,19 @@ function formatSize(size: number) {
 	return ((!index ? size : size.toFixed(1).slice(0, 3)) + units[index]).padStart(4);
 }
 
-const colors = [
-	[0o100, 'green'],
-	[0o010, 'green'],
-	[0o001, 'green'],
-	[S_IFDIR, 'blue'],
-	[S_IFLNK, 'cyan'],
-	[S_IFBLK, 'yellow'],
-	[S_IFCHR, 'yellow'],
-] as const;
+const colors: Record<number, InspectColor> = {
+	[S_IFDIR]: 'blue',
+	[S_IFLNK]: 'cyan',
+	[S_IFBLK]: 'yellow',
+	[S_IFCHR]: 'yellow',
+	[S_IFIFO]: 'yellow',
+	[S_IFSOCK]: 'magenta',
+};
 
 function colorize(text: string, stats: fs.Stats) {
-	const formats = colors.filter(([mask]) => (stats.mode & mask) == mask).map(([, color]) => color);
-	return formats.length ? styleText(formats, text) : text;
+	const color = colors[stats.mode & S_IFMT];
+	if (color) return styleText(color, text);
+	return stats.mode & 0o111 ? styleText('green', text) : text;
 }
 
 const formatter = new Intl.DateTimeFormat('en-US', {
@@ -90,7 +91,8 @@ function listTarget(target: string, shortFormat: boolean) {
 	}
 
 	for (const file of files) {
-		const stats = fs.lstatSync(path.join(target, file));
+		const filePath = path.join(target, file);
+		const stats = fs.lstatSync(filePath);
 
 		if (shortFormat) {
 			const [i, length] = columnInfo[file];
@@ -102,8 +104,9 @@ function listTarget(target: string, shortFormat: boolean) {
 
 		const sym = [];
 		if (stats.isSymbolicLink()) {
-			const linkTarget = fs.readlinkSync(path.join(target, file), 'utf-8');
-			sym.push('->', fs.existsSync(linkTarget) ? linkTarget : styleText('bgRed', linkTarget));
+			const linkTarget = fs.readlinkSync(filePath, 'utf-8');
+			const resolved = path.resolve(path.dirname(filePath), linkTarget);
+			sym.push('->', fs.existsSync(resolved) ? colorize(linkTarget, fs.statSync(resolved)) : styleText('bgRed', linkTarget));
 		}
 
 		const parts = [
