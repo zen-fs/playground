@@ -1,1 +1,1 @@
-terminal.writeln(process.cwd());
+console.log(process.cwd());

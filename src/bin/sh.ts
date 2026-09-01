@@ -36,8 +36,8 @@ async function _execLine(line: string) {
 
 		await exec(file, args, process.env);
 	} catch (error: any) {
-		if (process.env.DEBUG && Error.isError(error)) terminal.writeln(error.stack!);
-		terminal.writeln('Error: ' + (error.message ?? error));
+		if (process.env.DEBUG && Error.isError(error)) console.log(error.stack!);
+		console.log('Error: ' + (error.message ?? error));
 	}
 }
 
@@ -49,11 +49,10 @@ export default async function main(sh: string, ...args: string[]) {
 		return;
 	}
 	const shell = createShell({
-		terminal,
 		get prompt(): string {
 			return `[${process.env.USERNAME}@${process.env.HOSTNAME} ${process.cwd() == '/root' ? '~' : path.basename(process.cwd()) || '/'}]$ `;
 		},
 		onLine: _execLine,
 	});
-	terminal.write(shell.prompt);
+	process.stdout.write(shell.prompt);
 }

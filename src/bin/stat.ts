@@ -63,7 +63,7 @@ const filePath = process.argv[1] || path.resolve('.') || '/';
 const stats = fs.lstatSync(filePath);
 
 // Write the output to the terminal
-terminal.write(`
+process.stdout.write(`
   File: ${styleText('blue', filePath)}
   Size: ${styleText('green', `${stats.size}`)}\tBlocks: ${styleText('green', `${stats.blocks}`)}\tIO Block: ${styleText('green', `${stats.blksize}`)}\t${styleText('yellow', types[stats.mode & fs.constants.S_IFMT] || 'unknown')}
 Device: ${styleText('cyan', stats.dev.toString(16))}\tInode: ${styleText('cyan', `${stats.ino}`)}\tLinks: ${styleText('cyan', `${stats.nlink}`)}

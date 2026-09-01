@@ -77,7 +77,7 @@ function listTarget(target: string, shortFormat: boolean) {
 
 	const maxLength = files.reduce((max, file) => Math.max(max, file.length), 0);
 
-	const numColumns = Math.floor(terminal.cols / (maxLength + 1));
+	const numColumns = Math.floor(process.stdout.columns / (maxLength + 1));
 	const columnLengths = new Array(numColumns).fill(0);
 	const columnInfo: Record<string, [number, number]> = {};
 
@@ -95,8 +95,8 @@ function listTarget(target: string, shortFormat: boolean) {
 		if (shortFormat) {
 			const [i, length] = columnInfo[file];
 			const colored = colorize(file, stats);
-			terminal.write(colored.padEnd(colored.length - length + columnLengths[i]));
-			if (i == numColumns - 1) terminal.write('\n');
+			process.stdout.write(colored.padEnd(colored.length - length + columnLengths[i]));
+			if (i == numColumns - 1) console.log();
 			continue;
 		}
 
@@ -117,12 +117,12 @@ function listTarget(target: string, shortFormat: boolean) {
 			...sym,
 		];
 
-		terminal.writeln(parts.join(' '));
+		console.log(parts.join(' '));
 	}
 
 	// New line at the end of the output
 	if (shortFormat) {
-		terminal.write('\n');
+		console.log();
 	}
 }
 
@@ -134,8 +134,8 @@ export default function main(ls: string, ...args: string[]) {
 	if (!targets.length) targets.push('.');
 
 	for (const target of targets) {
-		if (targets.length > 1) terminal.writeln(`${target}:`);
+		if (targets.length > 1) console.log(`${target}:`);
 		listTarget(target, shortFormat);
-		if (targets.length > 1) terminal.write('\n');
+		if (targets.length > 1) console.log();
 	}
 }

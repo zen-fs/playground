@@ -25,6 +25,6 @@ export default async function main(_name: string, ...args: string[]) {
 	}
 
 	for (const [key, value] of Object.entries(env)) {
-		terminal.writeln(`${key}=${value}`);
+		console.log(`${key}=${value}`);
 	}
 }

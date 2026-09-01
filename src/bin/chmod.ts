@@ -72,7 +72,7 @@ export default function main(...args: string[]) {
 	const [, mode, ...filePaths] = args;
 
 	if (!mode || !filePaths.length) {
-		terminal.writeln('chmod: missing operand');
+		console.log('chmod: missing operand');
 		return;
 	}
 
