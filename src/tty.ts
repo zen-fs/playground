@@ -3,13 +3,11 @@ import { WebLinksAddon } from '@xterm/addon-web-links';
 import { Terminal } from '@xterm/xterm';
 import { fs } from '@zenfs/core';
 import type { TTY } from '@zenfs/linux';
-import { attach_xterm, set_console } from '@zenfs/linux';
+import { attach_xterm } from '@zenfs/linux';
 import $ from 'jquery';
 
-export const terminal = new Terminal({
-	// No `convertEol`: ONLCR in the tty's line discipline already turns NL into CR-NL
-	rows: 48,
-});
+// No `convertEol`: ONLCR in the tty's line discipline already turns NL into CR-NL
+export const terminal = new Terminal({ rows: 48 });
 const fitAddon = new FitAddon();
 terminal.loadAddon(fitAddon);
 terminal.loadAddon(new WebLinksAddon());
@@ -27,7 +25,6 @@ export let tty: TTY | undefined;
  */
 export function attach_terminal(): void {
 	tty = attach_xterm(terminal, { input: false });
-	set_console(tty);
 }
 
 /**
