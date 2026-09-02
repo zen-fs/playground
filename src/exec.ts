@@ -14,9 +14,9 @@ const lib = ['/lib'];
 
 const modules: Record<string, NamespaceModuleDescriptor> = {
 	fs: { namespace: fs },
+	'node:fs': { namespace: fs },
 	path: { namespace: path },
-	'@zenfs/core': { namespace: fs },
-	'@zenfs/core/path': { namespace: path },
+	'node:path': { namespace: path },
 	util: { namespace: util },
 	'node:util': { namespace: util },
 };
