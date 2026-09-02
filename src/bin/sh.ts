@@ -1,5 +1,6 @@
-import * as fs from '@zenfs/core';
-import * as path from '@zenfs/core/path';
+import * as fs from 'fs';
+import * as path from 'path';
+import { createShell } from 'utilium/shell';
 
 const argPattern = /\s*(?:'([^']*)'|"((?:\\.|[^"\\])*)"|((?:\\.|[^\s"'\\])+))\s*/g;
 const nonEscapedLF = /(?<!\\)(?:\\\\)*\n/;
@@ -49,6 +50,8 @@ export default async function main(sh: string, ...args: string[]) {
 		return;
 	}
 	const shell = createShell({
+		stdin: process.stdin,
+		stdout: process.stdout,
 		get prompt(): string {
 			return `[${process.env.USERNAME}@${process.env.HOSTNAME} ${process.cwd() == '/root' ? '~' : path.basename(process.cwd()) || '/'}]$ `;
 		},

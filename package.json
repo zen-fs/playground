@@ -37,7 +37,7 @@
 		"jquery": "^4.0.0",
 		"kerium": "^1.3.8",
 		"ses": "^2.0.0",
-		"utilium": "^3.0.0"
+		"utilium": "^3.6.0"
 	},
 	"devDependencies": {
 		"@eslint/js": "^10.0.1",

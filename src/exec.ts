@@ -2,10 +2,9 @@ import { fs, defaultContext } from '@zenfs/core';
 import { X_OK } from '@zenfs/core/constants';
 import * as path from '@zenfs/core/path';
 import { UV } from 'kerium';
-import { ttyConsole, stdout, terminal } from './tty.js';
+import { ttyConsole, stdin, stdout } from './tty.js';
 import { open as __editor_open } from './editor.js';
 import 'ses';
-import { createShell, type ShellOptions } from 'utilium/shell';
 import type { NamespaceModuleDescriptor } from 'ses';
 import { pick } from 'utilium/objects';
 import * as util from './util.js';
@@ -54,6 +53,7 @@ export default async function exec(filename: string, args: string[], env: Record
 			process: {
 				argv: args,
 				env,
+				stdin,
 				stdout,
 				cwd() {
 					return defaultContext.pwd;
@@ -68,7 +68,6 @@ export default async function exec(filename: string, args: string[], env: Record
 			exec,
 			console: ttyConsole,
 			__editor_open,
-			createShell: (options: Omit<ShellOptions, 'terminal'>) => createShell({ ...options, terminal }),
 		},
 		modules,
 		resolveHook(specifier: string, referrer: string) {
