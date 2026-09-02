@@ -1,4 +1,4 @@
-import * as fs from '@zenfs/core';
+import * as fs from 'fs';
 
 const permissions: Record<string, number> = {
 	r: 0o4,

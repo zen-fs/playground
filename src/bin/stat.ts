@@ -1,6 +1,6 @@
 import { styleText } from 'util';
-import * as fs from '@zenfs/core';
-import * as path from '@zenfs/core/path';
+import * as fs from 'fs';
+import * as path from 'path';
 
 const { S_IFREG, S_IFDIR, S_IFCHR, S_IFBLK, S_IFIFO, S_IFLNK, S_IFSOCK } = fs.constants;
 

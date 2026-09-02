@@ -1,5 +1,5 @@
-import { join } from '@zenfs/core/path';
-import { existsSync } from '@zenfs/core';
+import { join } from 'path';
+import { existsSync } from 'fs';
 
 export default async function main(_name: string, ...args: string[]) {
 	const pattern = /^([\w\d_]+)=(.*)$/i;

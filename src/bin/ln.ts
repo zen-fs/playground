@@ -1,4 +1,4 @@
-import * as fs from '@zenfs/core';
+import * as fs from 'fs';
 
 // Argument parsing
 const positionals = process.argv.filter(arg => !arg.startsWith('-')).slice(1);

@@ -1,4 +1,4 @@
-import * as fs from '@zenfs/core';
+import * as fs from 'fs';
 
 if (!process.argv[1]) {
 	throw 'No path provided';
