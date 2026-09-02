@@ -63,6 +63,9 @@ const config: BuildOptions = {
 	logOverride: {
 		'direct-eval': 'info',
 	},
+	define: {
+		process: '{ "env": {} }',
+	},
 	plugins: [
 		{
 			name: 'build-system',

@@ -9,9 +9,7 @@ import { createShell, type ShellOptions } from 'utilium/shell';
 import type { NamespaceModuleDescriptor } from 'ses';
 import { pick } from 'utilium/objects';
 import * as util from './util.js';
-
-globalThis.process = { env: {} } as any;
-const { ModuleSource } = await import('@endo/module-source');
+import { ModuleSource } from '@endo/module-source';
 
 const lib = ['/lib'];
 
