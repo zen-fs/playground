@@ -20,7 +20,7 @@
 		"filesystem"
 	],
 	"author": "James Prevett <jp@jamespre.dev> (https://jamespre.dev)",
-	"license": "MIT",
+	"license": "LGPL-3.0-or-later",
 	"bugs": {
 		"url": "https://github.com/zen-fs/playground/issues"
 	},
