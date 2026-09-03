@@ -2,13 +2,13 @@ import { boundContexts, fs, xattr } from '@zenfs/core';
 import * as path from '@zenfs/core/path';
 import { jsBinHandlers, Process } from '@zenfs/linux';
 import { bindFunctions, pick } from 'utilium';
-import { open as editor_open } from './editor.js';
-import * as child_process from './lib/child_process.js';
-import { Console } from './lib/console.js';
-import * as net from './lib/net.js';
-import * as tty from './lib/tty.js';
-import { ReadStream, WriteStream } from './lib/tty.js';
-import * as util from './lib/util.js';
+import { open as editor_open } from '../editor.js';
+import * as child_process from './child_process.js';
+import { Console } from './console.js';
+import * as net from './net.js';
+import * as tty from './tty.js';
+import { ReadStream, WriteStream } from './tty.js';
+import * as util from './util.js';
 
 const hostGlobals = pick(
 	globalThis,
