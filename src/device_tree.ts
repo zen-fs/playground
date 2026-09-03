@@ -13,6 +13,4 @@ terminal.open($('#terminal-container')[0]);
 onload = () => fitAddon.fit();
 onresize = () => fitAddon.fit();
 
-define_device_tree(
-	{ kind: 'xterm', terminal },
-);
+define_device_tree({ kind: 'xterm', terminal });
