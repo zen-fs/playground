@@ -6,11 +6,12 @@ import './config.js';
 import './editor.js';
 import { location } from './explorer.js';
 import { isAbsolute } from '@zenfs/core/path';
-import './tty.js';
+import { tty } from './tty.js';
 import { fs } from '@zenfs/core';
 import { openPath, switchTab } from './common.js';
 import { defaultContext } from '@zenfs/core/internal/contexts.js';
-import exec from './exec.js';
+import { execve, Process } from '@zenfs/linux';
+import './binfmt_nodejs.js';
 
 // Switching tabs
 $<HTMLButtonElement>('#nav button').on('click', e => switchTab(e.target.name));
@@ -34,20 +35,20 @@ const search = new URLSearchParams(window.location.search);
 
 if (search.has('tab')) switchTab(search.get('tab')!);
 
-void exec('/bin/sh', [], {
-	SHELL: '/bin/sh',
-	HOSTNAME: 'zenfs.dev',
-	EDITOR: '/bin/open-editor',
-	get PWD() {
-		return defaultContext.pwd;
+export const initProc = new Process({
+	context: defaultContext,
+	tty,
+	env: {
+		SHELL: '/bin/sh',
+		HOSTNAME: 'zenfs.dev',
+		HOME: '/root',
+		USERNAME: 'pg',
+		TERM: 'xterm-256color',
+		USER: 'pg',
+		PATH: '/bin',
 	},
-	set PWD(value) {
-		defaultContext.pwd = value;
-	},
-	USERNAME: 'pg',
-	TERM: 'xterm-256color',
-	USER: 'pg',
-	PATH: '/bin',
 });
+
+execve(initProc, '/bin/sh');
 
 Object.assign(globalThis, { fs });

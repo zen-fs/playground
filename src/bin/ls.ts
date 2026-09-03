@@ -1,5 +1,5 @@
 import type { InspectColor } from 'node:util';
-import { styleText } from 'util';
+import { parseArgs, styleText } from 'util';
 import * as path from 'path';
 import * as fs from 'fs';
 
@@ -68,7 +68,7 @@ const formatter = new Intl.DateTimeFormat('en-US', {
 	hour12: false,
 });
 
-function listTarget(target: string, shortFormat: boolean) {
+function listTarget(target: string, long: boolean) {
 	const isDir = fs.statSync(target).isDirectory();
 	const files = isDir ? fs.readdirSync(target) : [path.basename(target)];
 
@@ -82,7 +82,7 @@ function listTarget(target: string, shortFormat: boolean) {
 	const columnLengths = new Array(numColumns).fill(0);
 	const columnInfo: Record<string, [number, number]> = {};
 
-	if (shortFormat) {
+	if (!long) {
 		for (const file of files) {
 			const i = files.indexOf(file) % numColumns;
 			columnInfo[file] = [i, file.length];
@@ -94,7 +94,7 @@ function listTarget(target: string, shortFormat: boolean) {
 		const filePath = path.join(target, file);
 		const stats = fs.lstatSync(filePath);
 
-		if (shortFormat) {
+		if (!long) {
 			const [i, length] = columnInfo[file];
 			const colored = colorize(file, stats);
 			process.stdout.write(colored.padEnd(colored.length - length + columnLengths[i]));
@@ -124,21 +124,20 @@ function listTarget(target: string, shortFormat: boolean) {
 	}
 
 	// New line at the end of the output
-	if (shortFormat) {
-		console.log();
-	}
+	if (!long) console.log();
 }
 
-export default function main(ls: string, ...args: string[]) {
-	const flags = args.filter(arg => arg.startsWith('-'));
-	const targets = args.filter(arg => !arg.startsWith('-'));
-	const shortFormat = !flags.includes('-l');
+const { values: options, positionals: targets } = parseArgs({
+	options: {
+		long: { short: 'l', type: 'boolean', default: false },
+	},
+	allowPositionals: true,
+});
 
-	if (!targets.length) targets.push('.');
+if (!targets.length) targets.push('.');
 
-	for (const target of targets) {
-		if (targets.length > 1) console.log(`${target}:`);
-		listTarget(target, shortFormat);
-		if (targets.length > 1) console.log();
-	}
+for (const target of targets) {
+	if (targets.length > 1) console.log(`${target}:`);
+	listTarget(target, options.long);
+	if (targets.length > 1) console.log();
 }

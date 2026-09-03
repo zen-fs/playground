@@ -1,6 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { createShell } from 'utilium/shell';
+import { execFileSync } from 'child_process';
 
 const argPattern = /\s*(?:'([^']*)'|"((?:\\.|[^"\\])*)"|((?:\\.|[^\s"'\\])+))\s*/g;
 const nonEscapedLF = /(?<!\\)(?:\\\\)*\n/;
@@ -21,10 +22,31 @@ function* parseArgTokens(line: string): Generator<string> {
 	}
 }
 
-async function _execLine(line: string) {
+const builtins: Record<string, (...args: string[]) => void> = {
+	cd(directory = process.env.HOME || '/') {
+		process.chdir(directory);
+	},
+	exit(rawCode = '0') {
+		const code = parseInt(rawCode);
+		if (!Number.isSafeInteger(code)) throw 'exit: invalid exit code';
+		if (process.pid !== 1) process.exit(code);
+		else throw 'exit: refusing to exit because this is the init process';
+	},
+	'open-editor'(file) {
+		void __editor_open(file);
+	},
+};
+
+function _execLine(line: string) {
 	try {
 		const args = Array.from(parseArgTokens(line));
 		if (!args[0]) return;
+
+		const builtin = builtins[args[0]];
+		if (builtin) {
+			builtin(...args.slice(1));
+			return;
+		}
 
 		let file: string | undefined;
 
@@ -35,27 +57,28 @@ async function _execLine(line: string) {
 
 		if (!file) throw 'Unknown command: ' + args[0];
 
-		await exec(file, args, process.env);
+		execFileSync(file, args.slice(1), { env: process.env, stdio: 'inherit' });
 	} catch (error: any) {
 		if (process.env.DEBUG && Error.isError(error)) console.log(error.stack!);
 		console.log('Error: ' + (error.message ?? error));
 	}
 }
 
-export default async function main(sh: string, ...args: string[]) {
-	if (args.length) {
-		const [file] = args;
-		const content = fs.readFileSync(file, 'utf8');
-		for (const line of content.split(nonEscapedLF)) await _execLine(line);
-		return;
-	}
-	const shell = createShell({
-		stdin: process.stdin,
-		stdout: process.stdout,
-		get prompt(): string {
-			return `[${process.env.USERNAME}@${process.env.HOSTNAME} ${process.cwd() == '/root' ? '~' : path.basename(process.cwd()) || '/'}]$ `;
-		},
-		onLine: _execLine,
-	});
-	process.stdout.write(shell.prompt);
+const args = process.argv.slice(1);
+
+if (args.length) {
+	const [file] = args;
+	const content = fs.readFileSync(file, 'utf8');
+	for (const line of content.split(nonEscapedLF)) _execLine(line);
+	process.exit(0);
 }
+
+const shell = createShell({
+	stdin: process.stdin,
+	stdout: process.stdout,
+	get prompt(): string {
+		return `[${process.env.USERNAME}@${process.env.HOSTNAME} ${process.cwd() == process.env.HOME ? '~' : path.basename(process.cwd()) || '/'}]$ `;
+	},
+	onLine: _execLine,
+});
+process.stdout.write(shell.prompt);

@@ -217,10 +217,10 @@ function argsToTokens(args: readonly string[], options: ParseArgsOptionsConfig):
 }
 
 /** A polyfill for `util.parseArgs`. */
-export function parseArgs<T extends ParseArgsConfig>(config?: T): ParseArgsResult<T> {
+export function parseArgs<T extends ParseArgsConfig>(this: typeof process, config?: T): ParseArgsResult<T> {
 	const input: ParseArgsConfig = config ?? {};
 
-	const args = objectGetOwn(input, 'args') ?? (globalThis as { process?: { argv: string[] } }).process?.argv.slice(2) ?? [];
+	const args = objectGetOwn(input, 'args') ?? this.argv.slice(1);
 	const strict = objectGetOwn(input, 'strict') ?? true;
 	const allowPositionals = objectGetOwn(input, 'allowPositionals') ?? !strict;
 	const allowNegative = objectGetOwn(input, 'allowNegative') ?? false;
@@ -346,4 +346,162 @@ To specify an option argument starting with a dash use ${example}.`
 	}
 
 	return { values, positionals, ...(returnTokens && { tokens }) } as unknown as ParseArgsResult<T>;
+}
+
+export interface InspectOptions {
+	depth?: number | null;
+	quoteStrings?: boolean;
+}
+
+const identifier = /^[A-Za-z_$][A-Za-z0-9_$]*$/;
+
+function quote(text: string): string {
+	const q = !text.includes("'") ? "'" : !text.includes('"') ? '"' : '`';
+	return (
+		q +
+		text
+			.replaceAll('\\', '\\\\')
+			.replaceAll(q, '\\' + q)
+			.replaceAll('\n', '\\n') +
+		q
+	);
+}
+
+function prefixOf(value: object): string {
+	const name = Object.getPrototypeOf(value) === null ? '[Object: null prototype]' : (value.constructor?.name ?? '');
+	return !name || name == 'Object' ? (name == 'Object' ? '' : name) : name + ' ';
+}
+
+function entries(value: object, seen: Set<object>, depth: number, options: InspectOptions): string[] {
+	return Object.entries(value).map(([key, v]) => `${identifier.test(key) ? key : quote(key)}: ${_inspect(v, seen, depth, options)}`);
+}
+
+function wrap(prefix: string, open: string, parts: string[], close: string, depth: number): string {
+	if (!parts.length) return prefix + open + close;
+
+	const line = `${prefix}${open} ${parts.join(', ')} ${close}`;
+	if (line.length <= 72 && !line.includes('\n')) return line;
+
+	const indent = '  '.repeat(depth + 1);
+	return `${prefix}${open}\n${parts.map(part => indent + part.replaceAll('\n', '\n  ')).join(',\n')}\n${'  '.repeat(depth)}${close}`;
+}
+
+function _inspect(value: unknown, seen: Set<object>, depth: number, options: InspectOptions): string {
+	switch (typeof value) {
+		case 'string':
+			return options.quoteStrings === false && !depth ? value : quote(value);
+		case 'bigint':
+			return value + 'n';
+		case 'symbol':
+			return value.toString();
+		case 'function': {
+			const kind = /^class[\s{]/.test(Function.prototype.toString.call(value)) ? 'class' : 'Function';
+			return value.name ? `[${kind}: ${value.name}]` : `[${kind} (anonymous)]`;
+		}
+		case 'undefined':
+			return 'undefined';
+		case 'number':
+			return Object.is(value, -0) ? '-0' : String(value);
+		case 'boolean':
+			return String(value);
+	}
+
+	if (value === null) return 'null';
+	if (value === undefined) return 'undefined';
+	if (seen.has(value)) return '[Circular *1]';
+
+	if (Error.isError(value)) return value.stack ?? `${value.name}: ${value.message}`;
+	if (value instanceof Date) return isNaN(value.getTime()) ? 'Invalid Date' : value.toISOString();
+	if (value instanceof RegExp) return String(value);
+
+	const max = options.depth === null ? Infinity : (options.depth ?? 2);
+	if (depth > max) return Array.isArray(value) ? '[Array]' : '[Object]';
+
+	seen.add(value);
+	try {
+		if (Array.isArray(value)) {
+			const parts = value.map(v => _inspect(v, seen, depth + 1, options));
+			// Anything set on the array itself, e.g. `Object.assign([1], { a: 2 })`
+			for (const [key, v] of Object.entries(value)) {
+				if (!/^\d+$/.test(key)) parts.push(`${identifier.test(key) ? key : quote(key)}: ${_inspect(v, seen, depth + 1, options)}`);
+			}
+			return wrap('', '[', parts, ']', depth);
+		}
+
+		if (ArrayBuffer.isView(value) && !(value instanceof DataView)) {
+			const items = Array.from(value as unknown as ArrayLike<number | bigint>, v => (typeof v == 'bigint' ? v + 'n' : String(v)));
+			return wrap(value.constructor.name + '(' + items.length + ') ', '[', items, ']', depth);
+		}
+
+		if (value instanceof Map) {
+			const parts = [...value].map(([k, v]) => `${_inspect(k, seen, depth + 1, options)} => ${_inspect(v, seen, depth + 1, options)}`);
+			return wrap(`Map(${value.size}) `, '{', parts, '}', depth);
+		}
+
+		if (value instanceof Set) {
+			const parts = [...value].map(v => _inspect(v, seen, depth + 1, options));
+			return wrap(`Set(${value.size}) `, '{', parts, '}', depth);
+		}
+
+		if (value instanceof Promise) return 'Promise { <pending> }';
+
+		return wrap(prefixOf(value), '{', entries(value, seen, depth + 1, options), '}', depth);
+	} finally {
+		seen.delete(value);
+	}
+}
+
+export function inspect(value: unknown, options: InspectOptions = {}): string {
+	return _inspect(value, new Set(), 0, options);
+}
+
+const specifiers = /%[sdifjoOc%]/g;
+
+export function format(...args: unknown[]): string {
+	const parts: string[] = [];
+	let rest = args;
+
+	if (typeof args[0] == 'string' && args[0].includes('%')) {
+		const [template, ...values] = args as [string, ...unknown[]];
+		let next = 0;
+
+		parts.push(
+			template.replace(specifiers, match => {
+				if (match == '%%') return '%';
+				if (next >= values.length) return match;
+
+				const value = values[next++];
+				switch (match) {
+					case '%s':
+						return typeof value == 'object' && value !== null ? inspect(value, { depth: 0 }) : typeof value == 'bigint' ? value + 'n' : String(value);
+					case '%d':
+						return typeof value == 'bigint' || typeof value == 'symbol' ? String(value) : String(Number(value));
+					case '%i':
+						return typeof value == 'bigint' || typeof value == 'symbol' ? String(value) : String(parseInt(String(value), 10));
+					case '%f':
+						return typeof value == 'symbol' ? String(value) : String(parseFloat(String(value)));
+					case '%j':
+						try {
+							return JSON.stringify(value) ?? 'undefined';
+						} catch {
+							return '[Circular]';
+						}
+					case '%o':
+						return inspect(value, { depth: 4 });
+					case '%O':
+						return inspect(value);
+					// CSS, which a terminal has no use for
+					case '%c':
+						return '';
+				}
+				return match;
+			})
+		);
+
+		rest = values.slice(next);
+	}
+
+	for (const value of rest) parts.push(typeof value == 'string' ? value : inspect(value));
+
+	return parts.join(' ');
 }

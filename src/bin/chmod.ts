@@ -68,29 +68,27 @@ function applyPermissions(currentMode: number, filePath: string, who: string, op
 	return currentMode;
 }
 
-export default function main(...args: string[]) {
-	const [, mode, ...filePaths] = args;
+const [, mode, ...filePaths] = process.argv;
 
-	if (!mode || !filePaths.length) {
-		console.log('chmod: missing operand');
-		return;
+if (!mode || !filePaths.length) {
+	console.log('chmod: missing operand');
+	process.exit(1);
+}
+
+function parseMode(path: string, current: number) {
+	if (/^[0-7]{3}$/.test(mode)) {
+		return parseInt(mode, 8);
 	}
 
-	function parseMode(path: string, current: number) {
-		if (/^[0-7]{3}$/.test(mode)) {
-			return parseInt(mode, 8);
-		}
-
-		const modeRegex = /([ugoa]*)([-+=])([rwxXstugo]+)/g;
-		let match;
-		while ((match = modeRegex.exec(mode)) !== null) {
-			current = applyPermissions(current, path, match[1] || 'a', match[2], match[3]);
-		}
-
-		return current;
+	const modeRegex = /([ugoa]*)([-+=])([rwxXstugo]+)/g;
+	let match;
+	while ((match = modeRegex.exec(mode)) !== null) {
+		current = applyPermissions(current, path, match[1] || 'a', match[2], match[3]);
 	}
 
-	for (const filePath of filePaths) {
-		fs.chmodSync(filePath, parseMode(filePath, fs.statSync(filePath).mode & 0o777));
-	}
+	return current;
+}
+
+for (const filePath of filePaths) {
+	fs.chmodSync(filePath, parseMode(filePath, fs.statSync(filePath).mode & 0o777));
 }

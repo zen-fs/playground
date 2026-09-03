@@ -1,4 +1,4 @@
-import { fs } from '@zenfs/core';
+import { fs, type V_Context } from '@zenfs/core';
 import $ from 'jquery';
 import { prompt, switchTab } from './common.js';
 
@@ -21,11 +21,11 @@ function updateButtons() {
 	}
 }
 
-export async function open(this: void, path?: string | void) {
+export async function open(this: V_Context, path?: string | void) {
 	path ??= await prompt('Open file');
 	if (!path) return;
 	file = path;
-	const data = fs.readFileSync(file, 'utf-8');
+	const data = fs.readFileSync.call(this, file, 'utf-8');
 	content.val(data);
 	savedContent = data;
 	content[0].focus();

@@ -1,7 +1,7 @@
 import { CopyOnWrite, Fetch, fs, InMemory, mount, normalizePath, resolveMountConfig, umount, type OptionsOf } from '@zenfs/core';
 import { resolve } from '@zenfs/core/path';
 import { defaultContext } from '@zenfs/core/internal/contexts.js';
-import { init } from '@zenfs/linux';
+import { init, processes } from '@zenfs/linux';
 import $ from 'jquery';
 import * as editor from './editor.js';
 import { update as updateExplorer } from './explorer.js';
@@ -42,7 +42,9 @@ export function switchTab(name: string): void {
 export function openPath(path: string, dirOnly: boolean = false): void {
 	path = normalizePath(path);
 	if (fs.statSync(path).isDirectory()) {
-		defaultContext.pwd = path;
+		const initProc = processes.get(1);
+		if (initProc) initProc.chdir(path);
+		else defaultContext.pwd = path;
 		$('#location').val(path);
 		updateExplorer();
 		return;
