@@ -12,6 +12,7 @@ import './editor.js';
 import { location } from './explorer.js';
 import './lib/binfmt_nodejs.js';
 import './device_tree.js';
+import { log } from 'kerium';
 
 // Switching tabs
 $<HTMLButtonElement>('#nav button').on('click', e => switchTab(e.target.name));
@@ -41,6 +42,11 @@ const fetchOptions: OptionsOf<typeof Fetch> = {
 	baseUrl: new URL('./system', window.location.href).href,
 	index: './index.json',
 };
+
+log.configure({
+	level: 'debug',
+	format: log.fancy({ colorize: 'message', style: 'css' }),
+});
 
 // we don't have to deal with initramfs, so we can just swap the root mount before running init
 umount('/');
