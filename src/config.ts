@@ -257,6 +257,26 @@ function saveTable(table: string, noLocalStorage: boolean = false): void {
 	fs.writeFileSync('/etc/fstab', table);
 }
 
+/**
+ * The kernel command line, the way a boot loader would hand one over.
+ * `?cmdline=` wins for a one-off boot; otherwise it is whatever was last saved.
+ */
+export const cmdline: string = new URLSearchParams(window.location.search).get('cmdline') ?? localStorage.cmdline ?? '';
+
+const cmdline_input = $<HTMLInputElement>('#config [name=cmdline]').val(cmdline);
+
+// Nothing re-reads the command line once the kernel is up, so changing it means booting again
+$('#config .boot').on('click', () => {
+	localStorage.cmdline = cmdline_input.val();
+
+	// A `?cmdline=` was for that boot only, so drop it and keep the rest of the query
+	const url = new URL(window.location.href);
+	url.searchParams.delete('cmdline');
+
+	if (url.href == window.location.href) window.location.reload();
+	else window.location.href = url.href;
+});
+
 $<HTMLInputElement>('#config .auto-load')[0].checked = 'autoLoad' in localStorage;
 
 if (localStorage.autoLoad && localStorage.fstab) {

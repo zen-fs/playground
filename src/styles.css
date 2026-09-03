@@ -115,6 +115,42 @@ dialog {
 }
 
 #config {
+	display: flex;
+	flex-direction: column;
+	padding: 0.5em 1em 4em;
+
+	.top,
+	ul {
+		position: static;
+		inset: auto;
+	}
+
+	.top p {
+		margin: 0 0 0.5em;
+	}
+
+	.cmdline {
+		display: flex;
+		align-items: center;
+		gap: 0.5em;
+		margin-top: 0.5em;
+
+		label {
+			white-space: nowrap;
+		}
+
+		input {
+			flex: 1;
+			min-width: 0;
+			font-family: monospace;
+		}
+	}
+
+	ul {
+		flex: 1;
+		margin: 0.5em 0 0;
+	}
+
 	.add {
 		position: absolute;
 		left: 1em;

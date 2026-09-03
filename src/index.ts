@@ -7,7 +7,7 @@ import { isAbsolute } from '@zenfs/core/path';
 import { init } from '@zenfs/linux';
 import $ from 'jquery';
 import { openPath, switchTab } from './common.js';
-import './config.js';
+import { cmdline } from './config.js';
 import './editor.js';
 import { location } from './explorer.js';
 import './lib/binfmt_nodejs.js';
@@ -63,4 +63,5 @@ await init({
 		USER: 'pg',
 		PATH: '/bin',
 	},
+	cmdline,
 });

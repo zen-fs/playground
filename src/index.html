@@ -18,8 +18,14 @@
 		<div id="config" class="tab">
 			<div class="top">
 				<p><strong>Configuration</strong></p>
-				<input type="checkbox" name="auto-load" class="auto-load" />
+				<input type="checkbox" id="autoload" name="auto-load" class="auto-load" />
 				<label for="autoload">Auto-load</label>
+
+				<div class="cmdline">
+					<label for="cmdline">Kernel command line</label>
+					<input type="text" id="cmdline" name="cmdline" placeholder="init=/bin/sh quiet tty.probe=0" />
+					<button class="boot">Save &amp; reboot</button>
+				</div>
 			</div>
 
 			<ul>
