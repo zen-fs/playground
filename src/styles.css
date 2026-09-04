@@ -31,6 +31,8 @@ button {
 	border-radius: 0.5em;
 	padding: 0.5em;
 	cursor: pointer;
+	line-height: 1.25;
+	vertical-align: middle;
 }
 
 button:disabled {
