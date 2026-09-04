@@ -5,6 +5,7 @@ import { processes } from '@zenfs/linux';
 import $ from 'jquery';
 import * as editor from './editor.js';
 import { update as updateExplorer } from './explorer.js';
+import { resizeTerminal } from './device_tree.js';
 
 export function switchTab(name: string): void {
 	$('.tab').hide();
@@ -15,9 +16,8 @@ export function switchTab(name: string): void {
 	$(`#nav button.active`).removeClass('active');
 	$(`#nav button[name=${name}]`).addClass('active');
 
-	if (name == 'explorer') {
-		updateExplorer();
-	}
+	if (name == 'explorer') updateExplorer();
+	if (name == 'terminal') resizeTerminal();
 }
 
 export function openPath(path: string, dirOnly: boolean = false): void {

@@ -10,7 +10,11 @@ terminal.loadAddon(fitAddon);
 terminal.loadAddon(new WebLinksAddon());
 terminal.open($('#terminal-container')[0]);
 
-onload = () => fitAddon.fit();
-onresize = () => fitAddon.fit();
+export function resizeTerminal() {
+	fitAddon.fit();
+}
+
+onresize = resizeTerminal;
+document.addEventListener('DOMContentLoaded', resizeTerminal);
 
 define_device_tree({ kind: 'xterm', terminal });
