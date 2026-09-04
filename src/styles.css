@@ -1,11 +1,24 @@
-* {
-	color: #bbb;
+@import './theme.css';
+
+/*
+	The same values the documentation site uses, so the playground matches it.
+	Everything below is derived from these four, see theme.css.
+*/
+:root {
+	--hue: 240deg;
+	--fg-light: 80%;
+	--bg-light: 16%;
+	--light-step: 8%;
 	color-scheme: dark;
+}
+
+* {
+	color: var(--fg-normal);
 }
 
 body {
 	font-family: sans-serif;
-	background-color: #333;
+	background-color: var(--bg-normal);
 }
 
 ul {
@@ -13,17 +26,17 @@ ul {
 }
 
 button {
-	background-color: #444;
-	border: 1px solid #888;
+	background-color: var(--bg-alt);
+	border: var(--border-accent);
 	border-radius: 0.5em;
 	padding: 0.5em;
 	cursor: pointer;
 }
 
 button:disabled {
-	background-color: #333;
-	border: 1px solid #666;
-	color: #999;
+	background-color: var(--bg-normal);
+	border: var(--border-disabled);
+	color: var(--fg-disabled);
 	border-radius: 0.5em;
 	padding: 0.5em;
 	cursor: pointer;
@@ -32,11 +45,11 @@ button:disabled {
 input,
 textarea,
 select {
-	background-color: #222;
-	border: 1px solid #888;
+	background-color: var(--bg-menu);
+	border: var(--border-accent);
 	border-radius: 0.25em;
 	padding: 0.25em;
-	accent-color: #bbb;
+	accent-color: var(--fg-normal);
 	resize: none;
 }
 
@@ -45,9 +58,9 @@ select {
 }
 
 dialog {
-	border: 1px solid #999;
+	border: var(--border-elevated);
 	border-radius: 0.5em;
-	background-color: #333;
+	background-color: var(--bg-menu);
 	min-width: 25em;
 }
 
@@ -73,7 +86,7 @@ dialog {
 	}
 
 	button:hover {
-		background-color: #777;
+		background-color: var(--bg-accent);
 	}
 
 	button.active {
@@ -82,13 +95,13 @@ dialog {
 
 	* {
 		padding: 0.5em 1em;
-		background-color: #444;
-		border: 1px solid #888;
+		background-color: var(--bg-alt);
+		border: var(--border-accent);
 	}
 }
 
 .tab {
-	border: 1px solid #999;
+	border: var(--border-accent);
 	border-radius: 1em;
 	position: fixed;
 	inset: 3em 0.5em 0.5em;
@@ -206,7 +219,7 @@ dialog {
 	}
 
 	li.entry {
-		border: 1px solid #555;
+		border: var(--border-alt);
 		border-radius: 0.5em;
 
 		input.entry-rename {
@@ -215,7 +228,7 @@ dialog {
 	}
 
 	li.entry.selected {
-		border: 1px solid #777;
+		border: var(--border-strong);
 		border-radius: 0.5em;
 	}
 
@@ -230,8 +243,8 @@ dialog {
 		padding: 1em;
 		display: flex;
 		flex-direction: column;
-		border: 1px solid #888;
-		background-color: #555;
+		border: var(--border-elevated);
+		background-color: var(--bg-elevated);
 		border-radius: 0.5em;
 		user-select: none;
 
@@ -240,7 +253,7 @@ dialog {
 		}
 
 		div:hover {
-			background-color: #666;
+			background-color: var(--bg-strong);
 			border-radius: 0.5em;
 		}
 	}
@@ -310,4 +323,8 @@ dialog.page {
 #confirm,
 #alert {
 	text-align: center;
+}
+
+::selection {
+	background-color: var(--bg-accent);
 }
