@@ -70,4 +70,5 @@ await init({
 		PATH: '/bin',
 	},
 	cmdline,
+	quiet: true,
 });
