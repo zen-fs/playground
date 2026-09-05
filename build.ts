@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import { build, context, type BuildOptions, type PluginBuild } from 'esbuild';
 import { execSync } from 'node:child_process';
-import { chmodSync, cpSync, existsSync, mkdirSync, readdirSync, renameSync, statSync } from 'node:fs';
+import { chmodSync, cpSync, existsSync, mkdirSync, readdirSync, renameSync, statSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path/posix';
 import { fileURLToPath } from 'node:url';
 import { parseArgs } from 'node:util';
@@ -23,6 +23,8 @@ if (!existsSync('build')) {
 }
 
 if (existsSync('system')) cpSync('system', 'build/system', { recursive: true });
+
+writeFileSync('build/CNAME', 'playground.zenfs.dev');
 
 const shared_config: BuildOptions = {
 	target: 'esnext',
