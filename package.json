@@ -8,8 +8,8 @@
 		"format": "prettier --write .",
 		"format:check": "prettier --check .",
 		"lint": "tsc -p tsconfig.json --noEmit && eslint src",
-		"build": "tsx build.ts",
-		"dev": "tsx build.ts -m dev"
+		"build": "node build.ts",
+		"dev": "node build.ts -m dev"
 	},
 	"repository": {
 		"type": "git",
@@ -47,7 +47,6 @@
 		"eslint": "^10.1.0",
 		"globals": "^17.0.0",
 		"prettier": "^3.3.3",
-		"tsx": "^4.19.1",
 		"typescript": "^6.0.0",
 		"typescript-eslint": "^8.58.0"
 	},
