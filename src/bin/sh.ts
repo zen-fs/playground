@@ -32,9 +32,6 @@ const builtins: Record<string, (...args: string[]) => void> = {
 		if (process.pid !== 1) process.exit(code);
 		else throw 'exit: refusing to exit because this is the init process';
 	},
-	'open-editor'(file) {
-		void __editor_open(file);
-	},
 };
 
 function _execLine(line: string) {
