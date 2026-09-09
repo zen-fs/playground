@@ -10,7 +10,7 @@ import { openPath, switchTab } from './common.js';
 import { cmdline } from './config.js';
 import './editor.js';
 import { location } from './explorer.js';
-import './lib/binfmt_nodejs.js';
+import { binfmt_nodejs_init } from './lib/binfmt_nodejs.js';
 import './device_tree.js';
 import { log } from 'kerium';
 
@@ -58,6 +58,8 @@ mount(
 		writable: { backend: InMemory, label: 'root-cow' },
 	})
 );
+
+binfmt_nodejs_init();
 
 await init({
 	env: {

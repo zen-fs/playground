@@ -1,4 +1,5 @@
 import type { InspectColor, ParseArgsConfig, ParseArgsOptionDescriptor, ParseArgsOptionsConfig, parseArgs as nodeParseArgs } from 'node:util';
+import { process } from './process.js';
 
 /**
  * ANSI escape codes for each format, from `util.inspect.colors`.
@@ -216,11 +217,14 @@ function argsToTokens(args: readonly string[], options: ParseArgsOptionsConfig):
 	return tokens;
 }
 
-/** A polyfill for `util.parseArgs`. */
-export function parseArgs<T extends ParseArgsConfig>(this: typeof process, config?: T): ParseArgsResult<T> {
+/**
+ * A polyfill for `util.parseArgs`.
+ * Node reads `process.argv` for the default, so this does too rather than taking it off `this`.
+ */
+export function parseArgs<T extends ParseArgsConfig>(config?: T): ParseArgsResult<T> {
 	const input: ParseArgsConfig = config ?? {};
 
-	const args = objectGetOwn(input, 'args') ?? this.argv.slice(1);
+	const args = objectGetOwn(input, 'args') ?? process.argv.slice(1);
 	const strict = objectGetOwn(input, 'strict') ?? true;
 	const allowPositionals = objectGetOwn(input, 'allowPositionals') ?? !strict;
 	const allowNegative = objectGetOwn(input, 'allowNegative') ?? false;

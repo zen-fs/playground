@@ -1,68 +1,63 @@
-import type { Process, Termios, TTYIoctlOps, WinSize } from '@zenfs/linux';
-import { iflags, lflags, TtyIoctl } from '@zenfs/linux';
+import type { TermiosFields } from '@zenfs/linux/uapi/abi';
+import { handles } from '@zenfs/linux/uapi/exec';
+import { tcgetattr, tcsetattr, winsize } from '@zenfs/linux/uapi/fs';
+import { iflags, lflags } from '@zenfs/linux/uapi/abi';
 import { Socket } from './net.js';
 
 /** What is used when the terminal can't say how big it is */
-const fallbackWinSize: WinSize = { rows: 24, cols: 80 };
+const fallbackWinSize = { row: 24, col: 80 };
 
 export class WriteStream extends Socket {
-	public constructor(proc: Process, fd: number = 1) {
-		super(proc, fd);
-	}
-
 	public override get isTTY(): boolean {
 		return this.winsize !== undefined;
 	}
 
 	/** The terminal's size, or nothing when the descriptor isn't a terminal (`ENOTTY`) */
-	protected get winsize(): WinSize | undefined {
+	protected get winsize(): { row: number; col: number } | undefined {
 		try {
-			return this.ioctl<TtyIoctl.GetWinsize, TTYIoctlOps>(this.fd, TtyIoctl.GetWinsize);
+			return winsize(this.fd);
 		} catch {
 			return undefined;
 		}
 	}
 
 	public get columns(): number {
-		return (this.winsize ?? fallbackWinSize).cols;
+		return (this.winsize ?? fallbackWinSize).col;
 	}
 
 	public get rows(): number {
-		return (this.winsize ?? fallbackWinSize).rows;
+		return (this.winsize ?? fallbackWinSize).row;
 	}
 }
 
 export type DataListener = (chunk: string) => void;
 
+/**
+ * The reading half of a terminal.
+ */
 export class ReadStream extends Socket {
 	protected readonly decoder = new TextDecoder();
 
-	/** What `wait_read` gave back, only set while the terminal is being read */
-	protected stopWaiting?: () => void;
+	protected readonly buffer = new Uint8Array(4096);
 
 	/** The line settings from before raw mode, so `setRawMode(false)` can put them back */
-	protected cooked?: Termios;
-
-	public constructor(proc: Process, fd: number = 0) {
-		super(proc, fd);
-	}
+	protected cooked?: TermiosFields;
 
 	public override get isTTY(): boolean {
 		return true;
 	}
 
-	/**
-	 * Take everything the terminal has and hand it over.
-	 * A read can't report how much it got, so `FIONREAD` is what says how much there is.
-	 */
+	/** Block until the terminal has something, then hand it over */
 	protected readonly drain = (): void => {
-		const count = this.ioctl<TtyIoctl.InputQueue, TTYIoctlOps>(this.fd, TtyIoctl.InputQueue);
-		if (!count) return;
+		const length = this.readInto(this.buffer);
 
-		const buffer = new Uint8Array(count);
-		this.readInto(buffer, count);
+		if (!length) {
+			this.pause();
+			this.emit('end');
+			return;
+		}
 
-		this.emit('data', this.decoder.decode(buffer, { stream: true }));
+		this.emit('data', this.decoder.decode(this.buffer.subarray(0, length), { stream: true }));
 	};
 
 	/**
@@ -72,30 +67,29 @@ export class ReadStream extends Socket {
 	 */
 	public setRawMode(raw: boolean): this {
 		if (!raw) {
-			if (this.cooked) this.ioctl<TtyIoctl.SetTermios, TTYIoctlOps>(this.fd, TtyIoctl.SetTermios, this.cooked);
+			if (this.cooked) tcsetattr(this.fd, this.cooked);
 			this.cooked = undefined;
 			return this;
 		}
 
-		const termios = this.ioctl<TtyIoctl.GetTermios, TTYIoctlOps>(this.fd, TtyIoctl.GetTermios);
+		const termios = tcgetattr(this.fd);
 		this.cooked ??= termios;
-		this.ioctl<TtyIoctl.SetTermios, TTYIoctlOps>(this.fd, TtyIoctl.SetTermios, {
+
+		tcsetattr(this.fd, {
 			iflag: termios.iflag & ~(iflags.ISTRIP | iflags.INLCR | iflags.IGNCR | iflags.ICRNL),
 			lflag: termios.lflag & ~(lflags.ICANON | lflags.ECHO | lflags.ISIG),
 		});
+
 		return this;
 	}
 
 	public readonly resume = (): this => {
-		if (this.stopWaiting) return this;
-		this.stopWaiting = this.waitRead(this.drain);
-		if (this.stopWaiting) this.drain();
+		handles.add(this.drain);
 		return this;
 	};
 
 	public readonly pause = (): this => {
-		this.stopWaiting?.();
-		this.stopWaiting = undefined;
+		handles.delete(this.drain);
 		return this;
 	};
 }
