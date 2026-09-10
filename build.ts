@@ -62,6 +62,31 @@ async function getPrecompiledPrograms(into: string = 'system/bin'): Promise<void
 	precompiledHasRun = true;
 }
 
+/**
+ * `/etc/os-release`, generated so the version in it is the kernel emulation that is actually
+ * installed — a static file would go stale the moment `@zenfs/linux` is updated.
+ */
+function writeOsRelease(target: string): void {
+	const { version } = JSON.parse(fs.readFileSync('node_modules/@zenfs/linux/package.json', 'utf8')) as { version: string };
+
+	fs.mkdirSync(join(target, '..'), { recursive: true });
+	fs.writeFileSync(
+		target,
+		[
+			'NAME="ZenFS"',
+			'ID=zenfs',
+			`VERSION="${version}"`,
+			`VERSION_ID=${version}`,
+			`PRETTY_NAME="ZenFS ${version}"`,
+			'ANSI_COLOR="0;36"',
+			'HOME_URL="https://zenfs.dev"',
+			'DOCUMENTATION_URL="https://zenfs.dev/linux"',
+			'SUPPORT_URL="https://github.com/zen-fs/core/discussions"',
+			'BUG_REPORT_URL="https://github.com/zen-fs/core/issues"',
+		].join('\n') + '\n'
+	);
+}
+
 if (command === 'get-wasm') {
 	await getPrecompiledPrograms();
 	process.exit(0);
@@ -166,6 +191,8 @@ const config: BuildOptions = {
 
 					await getPrecompiledPrograms();
 					if (fs.existsSync('system')) fs.cpSync('system', 'build/system', { recursive: true });
+
+					writeOsRelease(outdir + '/system/etc/os-release');
 
 					execSync('npx -s make-index build/system -o build/index.json -q', { stdio: 'inherit' });
 				});
