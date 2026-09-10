@@ -7,6 +7,7 @@ import { Console } from './console.js';
 import * as fs from './fs.js';
 import * as esm from './modules.js';
 import * as net from './net.js';
+import * as os from './os.js';
 import * as path from './path.js';
 import { process, stderr, stdout } from './process.js';
 import * as tty from './tty.js';
@@ -48,6 +49,7 @@ Object.assign(esm.modules, {
 	console,
 	fs,
 	net,
+	os,
 	path,
 	process,
 	tty,

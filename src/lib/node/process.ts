@@ -80,6 +80,10 @@ export const process = {
 	get ppid(): number {
 		return sys.getppid();
 	},
+	getuid: (): number => sys.getuid(),
+	geteuid: (): number => sys.geteuid(),
+	getgid: (): number => sys.getgid(),
+	getegid: (): number => sys.getegid(),
 	get argv(): string[] {
 		return sys.argv();
 	},
