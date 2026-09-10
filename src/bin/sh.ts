@@ -2,6 +2,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { createShell } from 'utilium/shell';
 import { execFileSync } from 'child_process';
+import { styleText } from 'util';
 
 const argPattern = /\s*(?:'([^']*)'|"((?:\\.|[^"\\])*)"|((?:\\.|[^\s"'\\])+))\s*/g;
 const nonEscapedLF = /(?<!\\)(?:\\\\)*\n/;
@@ -77,11 +78,47 @@ if (args.length) {
 	process.exit(0);
 }
 
+function sourceProfile(file: string): void {
+	let content;
+
+	try {
+		content = fs.readFileSync(file, 'utf8');
+	} catch {
+		return;
+	}
+
+	for (const line of content.split('\n')) {
+		const match = /^\s*([A-Za-z_][A-Za-z0-9_]*)=(.*)$/.exec(line);
+		if (!match || process.env[match[1]] !== undefined) continue;
+		process.env[match[1]] = match[2];
+	}
+}
+
+sourceProfile('/etc/profile');
+
+const root = (process.geteuid?.() ?? 0) == 0;
+
+/** Where the shell is, with the home directory written the way a prompt writes it */
+function location(): string {
+	const cwd = process.cwd();
+	const home = process.env.HOME;
+	if (!home || !cwd.startsWith(home)) return cwd;
+	return '~' + cwd.slice(home.length);
+}
+
+function parts(): [string, string, string, string] {
+	return ['[', `${process.env.USERNAME}@${process.env.HOSTNAME}`, ' ' + location(), root ? ']# ' : ']$ '];
+}
+
 const shell = createShell({
 	stdin: process.stdin,
 	stdout: process.stdout,
 	get prompt(): string {
-		return `[${process.env.USERNAME}@${process.env.HOSTNAME} ${process.cwd() == process.env.HOME ? '~' : path.basename(process.cwd()) || '/'}]$ `;
+		const [open, who, where, end] = parts();
+		return styleText('dim', open) + styleText(root ? 'magenta' : 'green', who) + styleText('reset', where) + styleText('dim', end);
+	},
+	get promptLength(): number {
+		return parts().join('').length;
 	},
 	onLine: _execLine,
 });
