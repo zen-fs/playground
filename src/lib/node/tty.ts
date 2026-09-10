@@ -47,6 +47,10 @@ export class ReadStream extends Socket {
 		return true;
 	}
 
+	public get isRaw(): boolean {
+		return !!this.cooked;
+	}
+
 	/** Block until the terminal has something, then hand it over */
 	protected readonly drain = (): void => {
 		const length = this.readInto(this.buffer);

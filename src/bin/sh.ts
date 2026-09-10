@@ -54,7 +54,14 @@ function _execLine(line: string) {
 
 		if (!file) throw 'Unknown command: ' + args[0];
 
-		execFileSync(file, args.slice(1), { env: process.env, stdio: 'inherit' });
+		const raw = process.stdin.isRaw;
+		if (raw) process.stdin.setRawMode(false);
+
+		try {
+			execFileSync(file, args.slice(1), { env: process.env, stdio: 'inherit' });
+		} finally {
+			if (raw) process.stdin.setRawMode(true);
+		}
 	} catch (error: any) {
 		if (process.env.DEBUG && Error.isError(error)) console.log(error.stack!);
 		console.log('Error: ' + (error.message ?? error));
