@@ -1,0 +1,25 @@
+{
+	"ref": "b197c026966b6e0739ed7be989b46d810bae9645",
+	"programs": [
+		{
+			"name": "bash",
+			"path": "sample-apps/bash/bash.wasm",
+			"sha256": "5c7bfd3e327ad534696b08d14bf0c781b50b8a6b1387b45269d819e373de283b"
+		},
+		{
+			"name": "lua",
+			"path": "sample-apps/lua/lua.wasm",
+			"sha256": "e7192d2e5afeb7a2a6d67d08de6cd692390b64619c8c822ae81c5b1016be7602"
+		},
+		{
+			"name": "sqlite3",
+			"path": "sample-apps/sqlite/sqlite3.wasm",
+			"sha256": "4f2e51792a1a4c5f1f17776e063958608c7813bb8b60844b9393bc617094f624"
+		},
+		{
+			"name": "vim",
+			"path": "sample-apps/vim/vim.wasm",
+			"sha256": "c3757a4e9033abcc9b68a567b9670c1a1e6c202034ddf31676a4363e8f84c714"
+		}
+	]
+}

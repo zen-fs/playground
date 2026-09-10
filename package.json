@@ -8,6 +8,7 @@
 		"format": "prettier --write .",
 		"format:check": "prettier --check .",
 		"lint": "tsc -p tsconfig.json --noEmit && eslint src",
+		"build:precompiled": "node build.ts get-wasm",
 		"build": "node build.ts",
 		"dev": "node build.ts -m dev"
 	},
@@ -34,7 +35,7 @@
 		"@zenfs/archives": "^1.3.6",
 		"@zenfs/core": "^2.5.6",
 		"@zenfs/dom": "^1.2.9",
-		"@zenfs/linux": "^0.3.0",
+		"@zenfs/linux": "^0.4.0",
 		"eventemitter3": "^5.0.4",
 		"jquery": "^4.0.0",
 		"kerium": "^1.3.8",

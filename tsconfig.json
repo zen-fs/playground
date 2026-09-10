@@ -6,7 +6,8 @@
 		"lib": ["ESNext", "DOM"],
 		"moduleResolution": "NodeNext",
 		"strict": true,
-		"types": ["node"]
+		"types": ["node"],
+		"resolveJsonModule": true
 	},
 	"include": ["src/**/*.ts", "build.ts"],
 	"exclude": ["node_modules"]

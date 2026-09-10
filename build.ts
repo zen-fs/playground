@@ -1,14 +1,17 @@
 #!/usr/bin/env node
 import { build, context, type BuildOptions, type PluginBuild } from 'esbuild';
 import { execSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
+import * as fs from 'node:fs';
 import { createServer, request } from 'node:http';
-import { chmodSync, cpSync, existsSync, mkdirSync, readdirSync, renameSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path/posix';
 import { fileURLToPath } from 'node:url';
 import { parseArgs } from 'node:util';
+import wali_precompiled from './wali_precomiled.json' with { type: 'json' };
 
 const {
 	values: { mode = 'build', port = '8000' },
+	positionals: [command],
 } = parseArgs({
 	options: {
 		mode: { short: 'm', type: 'string', default: 'build' },
@@ -22,18 +25,58 @@ const outdir = 'build';
 
 const devPort = Number(port) || 8000;
 
+function digest(data: Uint8Array): string {
+	return createHash('sha256').update(data).digest('hex');
+}
+
+let precompiledHasRun = false;
+
+async function getPrecompiledPrograms(into: string = 'system/bin'): Promise<void> {
+	fs.mkdirSync(into, { recursive: true });
+
+	for (const { name, path, sha256 } of wali_precompiled.programs) {
+		const target = join(into, name);
+
+		if (fs.existsSync(target) && digest(fs.readFileSync(target)) == sha256) {
+			!precompiledHasRun && console.log('already downloaded', name);
+			continue;
+		}
+
+		const url = `https://raw.githubusercontent.com/Wasm-Thin-Kernel-Interfaces/WALI/${wali_precompiled.ref}/${path}`;
+		process.stdout.write(`downloading precompiled ${name}... `);
+
+		const response = await fetch(url);
+		if (!response.ok) throw new Error(`${url} gave ${response.status} ${response.statusText}`);
+
+		const data = await response.bytes();
+		const got = digest(data);
+
+		if (got != sha256) throw new Error(`expected sha256 ${sha256}, got ${got}`);
+
+		fs.writeFileSync(target, data);
+		fs.chmodSync(target, 0o755);
+
+		console.log(`done. (${(data.byteLength / 1048576).toFixed(1)} MB)`);
+	}
+
+	precompiledHasRun = true;
+}
+
+if (command === 'get-wasm') {
+	await getPrecompiledPrograms();
+	process.exit(0);
+}
+
 const isolation = {
 	'Cross-Origin-Opener-Policy': 'same-origin',
 	'Cross-Origin-Embedder-Policy': 'require-corp',
 };
 
-if (!existsSync('build')) {
-	mkdirSync('build');
+if (!fs.existsSync('build')) {
+	fs.mkdirSync('build');
 }
 
-if (existsSync('system')) cpSync('system', 'build/system', { recursive: true });
-
-writeFileSync('build/CNAME', 'playground.zenfs.dev');
+fs.writeFileSync('build/CNAME', 'playground.zenfs.dev');
 
 const singletons = ['@zenfs/core', '@zenfs/streams', 'memium', 'kerium', 'utilium'];
 
@@ -79,11 +122,13 @@ const bin_config: BuildOptions = {
 	entryPoints: ['src/bin/*.ts'],
 };
 
+const interpreters = ['node', 'wali'];
+
 const interpreter_config: BuildOptions = {
 	...shared_config,
 	outdir: outdir + '/system/bin',
 	define: { process: '{ "env": {} }' },
-	entryPoints: [{ in: 'src/lib/node/main.ts', out: 'node' }],
+	entryPoints: interpreters.map(name => ({ in: `src/lib/${name}/main.ts`, out: name })),
 };
 
 const config: BuildOptions = {
@@ -100,21 +145,28 @@ const config: BuildOptions = {
 			name: 'build-system',
 			setup({ onStart }: PluginBuild): void | Promise<void> {
 				onStart(async () => {
-					rmSync(bin_config.outdir!, { recursive: true, force: true });
-					rmSync(lib_config.outdir!, { recursive: true, force: true });
+					fs.rmSync(bin_config.outdir!, { recursive: true, force: true });
+					fs.rmSync(lib_config.outdir!, { recursive: true, force: true });
 
 					await build(bin_config);
-					for (const file of readdirSync(bin_config.outdir!)) {
+					for (const file of fs.readdirSync(bin_config.outdir!)) {
 						if (!file.endsWith('.js')) continue;
 						const p = join(bin_config.outdir!, file);
-						chmodSync(p, statSync(p).mode | 0o1111);
-						renameSync(p, p.slice(0, -3));
+						fs.chmodSync(p, fs.statSync(p).mode | 0o1111);
+						fs.renameSync(p, p.slice(0, -3));
 					}
 					await build(interpreter_config);
-					chmodSync(join(interpreter_config.outdir!, 'node.js'), 0o755);
-					renameSync(join(interpreter_config.outdir!, 'node.js'), join(interpreter_config.outdir!, 'node'));
+					for (const name of interpreters) {
+						const p = join(interpreter_config.outdir!, name + '.js');
+						fs.chmodSync(p, 0o755);
+						fs.renameSync(p, join(interpreter_config.outdir!, name));
+					}
 
 					await build(lib_config);
+
+					await getPrecompiledPrograms();
+					if (fs.existsSync('system')) fs.cpSync('system', 'build/system', { recursive: true });
+
 					execSync('npx -s make-index build/system -o build/index.json -q', { stdio: 'inherit' });
 				});
 			},
