@@ -5,7 +5,8 @@
 		"noEmit": true,
 		"lib": ["ESNext", "DOM"],
 		"moduleResolution": "NodeNext",
-		"strict": true
+		"strict": true,
+		"types": ["node"]
 	},
 	"include": ["src/**/*.ts", "build.ts"],
 	"exclude": ["node_modules"]
