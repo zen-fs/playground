@@ -1,6 +1,5 @@
-import { spawn, wait } from '@zenfs/linux/uapi/process';
+import { environ, spawn, wait } from '@zenfs/linux/uapi/process';
 import type * as child_process from 'node:child_process';
-import { process } from './process.js';
 
 type Options = child_process.ExecFileSyncOptions;
 
@@ -11,7 +10,7 @@ export function execFileSync(file: string, args?: readonly string[] | Options, o
 	const argv = Array.isArray(args) ? (args as readonly string[]) : [];
 	const opts = (Array.isArray(args) ? options : (args as Options | undefined)) ?? {};
 
-	const env = (opts.env as Record<string, string> | undefined) ?? process.env;
+	const env = (opts.env as Record<string, string> | undefined) ?? environ();
 
 	const pid = spawn(file, [file, ...argv], env);
 	const status = wait(pid);

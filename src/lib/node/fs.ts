@@ -6,7 +6,7 @@ import { basename, dirname, join } from './path.js';
 
 export * as constants from '@zenfs/core/constants';
 
-import { O_APPEND, O_CREAT, O_EXCL, O_RDONLY, O_RDWR, O_TRUNC, O_WRONLY, S_IFDIR, S_IFMT, S_IFREG } from '@zenfs/core/constants';
+import { O_APPEND, O_CREAT, O_EXCL, O_RDONLY, O_RDWR, O_TRUNC, O_WRONLY } from '@zenfs/core/constants';
 
 const encoder = new TextEncoder();
 const decoder = new TextDecoder();
@@ -384,6 +384,3 @@ export const promises = {
 	cp: promised(cpSync),
 	glob: promised(globSync),
 };
-
-/** What a mode's type bits mean, for anything that wants them without a whole `Stats` */
-export const fileTypes = { S_IFMT, S_IFREG, S_IFDIR } as const;

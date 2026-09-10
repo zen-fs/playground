@@ -37,9 +37,6 @@ writeFileSync('build/CNAME', 'playground.zenfs.dev');
 
 const singletons = ['@zenfs/core', '@zenfs/streams', 'memium', 'kerium', 'utilium'];
 
-/** Resolve those from here, wherever they were imported from, so only one copy is bundled */
-const here = fileURLToPath(new URL('.', import.meta.url));
-
 const dedupe: NonNullable<BuildOptions['plugins']>[number] = {
 	name: 'dedupe',
 	setup(build: PluginBuild) {
@@ -50,7 +47,7 @@ const dedupe: NonNullable<BuildOptions['plugins']>[number] = {
 
 			const resolved = await build.resolve(args.path, {
 				kind: args.kind,
-				resolveDir: here,
+				resolveDir: import.meta.dirname,
 				pluginData: dedupe,
 			});
 
@@ -68,18 +65,12 @@ const shared_config: BuildOptions = {
 	plugins: [dedupe],
 };
 
-const lib_config: BuildOptions & { entryPoints: { in: string; out: string }[] } = {
+const lib_config: BuildOptions = {
 	...shared_config,
-	entryPoints: [],
 	outdir: outdir + '/system/lib',
+	splitting: true,
+	entryPoints: [{ in: fileURLToPath(import.meta.resolve('utilium/shell')), out: 'utilium/shell' }],
 };
-
-for (const specifier of ['@zenfs/core', 'utilium', 'utilium/shell', '@zenfs/core/path']) {
-	lib_config.entryPoints.push({
-		in: fileURLToPath(import.meta.resolve(specifier)),
-		out: specifier,
-	});
-}
 
 const bin_config: BuildOptions = {
 	...shared_config,
@@ -88,39 +79,30 @@ const bin_config: BuildOptions = {
 	entryPoints: ['src/bin/*.ts'],
 };
 
-const thread_config: BuildOptions = {
+const interpreter_config: BuildOptions = {
 	...shared_config,
-	outdir: outdir + '/system',
-	splitting: true,
-	define: {
-		process: '{ "env": {} }',
-	},
-	entryPoints: [
-		{ in: fileURLToPath(import.meta.resolve('@zenfs/linux/uapi/bootstrap')), out: 'bootstrap' },
-		{ in: 'src/runtime.ts', out: 'runtime' },
-	],
+	outdir: outdir + '/system/bin',
+	define: { process: '{ "env": {} }' },
+	entryPoints: [{ in: 'src/lib/node/main.ts', out: 'node' }],
 };
 
 const config: BuildOptions = {
 	...shared_config,
 	entryPoints: ['src/index.ts', 'src/index.html', 'src/styles.css'],
 	outdir,
-	loader: {
-		'.html': 'copy',
-	},
+	loader: { '.html': 'copy' },
 	sourcemap: true,
-	logOverride: {
-		'direct-eval': 'info',
-	},
-	define: {
-		process: '{ "env": {} }',
-	},
+	logOverride: { 'direct-eval': 'info' },
+	define: { process: '{ "env": {} }' },
 	plugins: [
 		dedupe,
 		{
 			name: 'build-system',
 			setup({ onStart }: PluginBuild): void | Promise<void> {
 				onStart(async () => {
+					rmSync(bin_config.outdir!, { recursive: true, force: true });
+					rmSync(lib_config.outdir!, { recursive: true, force: true });
+
 					await build(bin_config);
 					for (const file of readdirSync(bin_config.outdir!)) {
 						if (!file.endsWith('.js')) continue;
@@ -128,13 +110,11 @@ const config: BuildOptions = {
 						chmodSync(p, statSync(p).mode | 0o1111);
 						renameSync(p, p.slice(0, -3));
 					}
-					await build(lib_config);
+					await build(interpreter_config);
+					chmodSync(join(interpreter_config.outdir!, 'node.js'), 0o755);
+					renameSync(join(interpreter_config.outdir!, 'node.js'), join(interpreter_config.outdir!, 'node'));
 
-					// Splitting names chunks by content, so old ones would pile up in the index
-					for (const file of readdirSync(thread_config.outdir!)) {
-						if (file.startsWith('chunk-')) rmSync(join(thread_config.outdir!, file));
-					}
-					await build(thread_config);
+					await build(lib_config);
 					execSync('npx -s make-index build/system -o build/index.json -q', { stdio: 'inherit' });
 				});
 			},

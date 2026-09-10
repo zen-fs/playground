@@ -80,8 +80,12 @@ export const process = {
 	get ppid(): number {
 		return sys.getppid();
 	},
-	argv: sys.argv(),
-	env: sys.environ(),
+	get argv(): string[] {
+		return sys.argv();
+	},
+	get env(): Record<string, string> {
+		return sys.environ();
+	},
 	stdin,
 	stdout,
 	stderr,

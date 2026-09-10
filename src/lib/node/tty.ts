@@ -1,7 +1,7 @@
 import type { TermiosFields } from '@zenfs/linux/uapi/abi';
-import { handles } from '@zenfs/linux/uapi/exec';
-import { tcgetattr, tcsetattr, winsize } from '@zenfs/linux/uapi/fs';
 import { iflags, lflags } from '@zenfs/linux/uapi/abi';
+import { tcgetattr, tcsetattr, winsize } from '@zenfs/linux/uapi/fs';
+import { handles } from './modules.js';
 import { Socket } from './net.js';
 
 /** What is used when the terminal can't say how big it is */
