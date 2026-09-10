@@ -68,7 +68,18 @@ function applyPermissions(currentMode: number, filePath: string, who: string, op
 	return currentMode;
 }
 
-const [, mode, ...filePaths] = process.argv;
+const args = process.argv.slice(1);
+
+let recursive = false;
+let verbose = false;
+
+while (args.length && /^-[Rv]+$/.test(args[0])) {
+	if (args[0].includes('R')) recursive = true;
+	if (args[0].includes('v')) verbose = true;
+	args.shift();
+}
+
+const [mode, ...filePaths] = args;
 
 if (!mode || !filePaths.length) {
 	console.log('chmod: missing operand');
@@ -89,6 +100,16 @@ function parseMode(path: string, current: number) {
 	return current;
 }
 
+function apply(filePath: string) {
+	const stats = fs.statSync(filePath);
+	const changed = parseMode(filePath, stats.mode & 0o7777);
+
+	if (verbose) console.log(`mode of '${filePath}' changed to ${changed.toString(8).padStart(4, '0')}`);
+	fs.chmodSync(filePath, changed);
+
+	if (recursive && stats.isDirectory()) for (const entry of fs.readdirSync(filePath)) apply(filePath + (filePath.endsWith('/') ? '' : '/') + entry);
+}
+
 for (const filePath of filePaths) {
-	fs.chmodSync(filePath, parseMode(filePath, fs.statSync(filePath).mode & 0o777));
+	apply(filePath);
 }
