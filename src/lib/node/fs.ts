@@ -1,5 +1,5 @@
 import { Stats } from '@zenfs/core/node/stats';
-import type { StatFields } from '@zenfs/linux/uapi/abi';
+import type { StatFields, StatFsFields } from '@zenfs/linux/uapi/abi';
 import { Whence } from '@zenfs/linux/uapi/abi';
 import * as sys from '@zenfs/linux/uapi/fs';
 import { basename, dirname, join } from './path.js';
@@ -283,6 +283,14 @@ export function utimesSync(path: PathLike, atime: Date | number | string, mtime:
 
 export function futimesSync(fd: number, atime: Date | number | string, mtime: Date | number | string): void {
 	sys.futimes(fd, ms(atime), ms(mtime));
+}
+
+export function statfsSync(path: PathLike): StatFsFields {
+	return sys.statfs(p(path));
+}
+
+export function fstatfsSync(fd: number): StatFsFields {
+	return sys.fstatfs(fd);
 }
 
 export function accessSync(path: PathLike, mode: number = 0): void {
