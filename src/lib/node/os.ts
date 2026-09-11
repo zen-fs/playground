@@ -1,4 +1,4 @@
-import { getgid, getuid, uname } from '@zenfs/linux/uapi/process';
+import { geteuid, uname } from '@zenfs/linux/uapi/process';
 import { readFileSync } from './fs.js';
 import { process } from './process.js';
 
@@ -41,14 +41,6 @@ export function uptime(): number {
 	return parseFloat(readFileSync('/proc/uptime', 'utf8') as string);
 }
 
-export function homedir(): string {
-	return process.env.HOME || '/';
-}
-
-export function tmpdir(): string {
-	return process.env.TMPDIR || '/tmp';
-}
-
 export interface UserInfo {
 	uid: number;
 	gid: number;
@@ -57,14 +49,34 @@ export interface UserInfo {
 	shell: string | null;
 }
 
+function getpwuid(uid: number): UserInfo | undefined {
+	let passwd: string;
+	try {
+		passwd = readFileSync('/etc/passwd', 'utf8') as string;
+	} catch {
+		return;
+	}
+
+	for (const line of passwd.split('\n')) {
+		const [username, , id, gid, , home, shell] = line.split(':');
+		if (Number(id) !== uid) continue;
+		return { uid, gid: Number(gid), username, homedir: home, shell: shell || null };
+	}
+}
+
+export function homedir(): string {
+	return process.env.HOME || getpwuid(geteuid())?.homedir || '/';
+}
+
+export function tmpdir(): string {
+	return process.env.TMPDIR || '/tmp';
+}
+
 export function userInfo(): UserInfo {
-	return {
-		uid: getuid(),
-		gid: getgid(),
-		username: process.env.USER || process.env.USERNAME || 'root',
-		homedir: homedir(),
-		shell: process.env.SHELL || null,
-	};
+	const uid = geteuid();
+	const entry = getpwuid(uid);
+	if (!entry) throw Object.assign(new Error(`A system error occurred: uv_os_get_passwd returned ENOENT`), { code: 'ENOENT', errno: -2 });
+	return entry;
 }
 
 export default { EOL, arch, endianness, homedir, hostname, machine, platform, release, tmpdir, type, uptime, userInfo, version };

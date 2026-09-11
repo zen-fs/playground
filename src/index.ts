@@ -60,12 +60,7 @@ mount(
 
 await init({
 	env: {
-		SHELL: '/bin/sh',
-		HOSTNAME: 'zenfs.dev',
-		HOME: '/root',
-		USERNAME: 'pg',
 		TERM: 'xterm-256color',
-		USER: 'pg',
 		PATH: '/bin',
 	},
 	cmdline,
