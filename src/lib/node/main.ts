@@ -12,6 +12,7 @@ import * as path from './path.js';
 import { process, stderr, stdout } from './process.js';
 import * as tty from './tty.js';
 import * as util from './util.js';
+import * as stream from '@zenfs/streams';
 
 const console = new Console({ stdout, stderr });
 
@@ -54,6 +55,7 @@ Object.assign(esm.modules, {
 	process,
 	tty,
 	util,
+	stream,
 });
 
 const init = await ready;
