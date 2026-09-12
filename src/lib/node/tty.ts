@@ -1,4 +1,4 @@
-import type { TermiosFields } from '@zenfs/linux/uapi/abi';
+import type { Termios } from '@zenfs/linux/uapi/abi';
 import { iflags, lflags } from '@zenfs/linux/uapi/abi';
 import { tcgetattr, tcsetattr, winsize } from '@zenfs/linux/uapi/fs';
 import { handles } from './modules.js';
@@ -41,7 +41,7 @@ export class ReadStream extends Socket {
 	protected readonly buffer = new Uint8Array(4096);
 
 	/** The line settings from before raw mode, so `setRawMode(false)` can put them back */
-	protected cooked?: TermiosFields;
+	protected cooked?: Termios;
 
 	public override get isTTY(): boolean {
 		return true;
@@ -77,7 +77,7 @@ export class ReadStream extends Socket {
 		}
 
 		const termios = tcgetattr(this.fd);
-		this.cooked ??= termios;
+		this.cooked ??= { ...termios, cc: [...termios.cc] };
 
 		tcsetattr(this.fd, {
 			iflag: termios.iflag & ~(iflags.ISTRIP | iflags.INLCR | iflags.IGNCR | iflags.ICRNL),

@@ -1,12 +1,11 @@
+import { O_APPEND, O_CREAT, O_EXCL, O_RDONLY, O_RDWR, O_TRUNC, O_WRONLY } from '@zenfs/core/constants';
 import { Stats } from '@zenfs/core/node/stats';
-import type { StatFields, StatFsFields } from '@zenfs/linux/uapi/abi';
+import type { Stat, StatFs } from '@zenfs/linux/uapi/abi';
 import { Whence } from '@zenfs/linux/uapi/abi';
 import * as sys from '@zenfs/linux/uapi/fs';
+import { pick } from 'utilium';
 import { basename, dirname, join } from './path.js';
-
 export * as constants from '@zenfs/core/constants';
-
-import { O_APPEND, O_CREAT, O_EXCL, O_RDONLY, O_RDWR, O_TRUNC, O_WRONLY } from '@zenfs/core/constants';
 
 const encoder = new TextEncoder();
 const decoder = new TextDecoder();
@@ -40,10 +39,6 @@ function flagsOf(flag: string | number = 'r'): number {
 	return parsed;
 }
 
-function statsOf(fields: StatFields): Stats {
-	return new Stats(fields);
-}
-
 export function openSync(path: PathLike, flag: string | number = 'r', mode: number = 0o666): number {
 	return sys.open(p(path), flagsOf(flag), mode);
 }
@@ -59,6 +54,10 @@ export function readSync(fd: number, buffer: Uint8Array, offset: number = 0, len
 export function writeSync(fd: number, data: Uint8Array | string, offset: number = 0, length?: number, position: number = -1): number {
 	const buffer = typeof data == 'string' ? encoder.encode(data) : data.subarray(offset, length === undefined ? undefined : offset + length);
 	return sys.write(fd, buffer, position);
+}
+
+function statsOf(stat: Stat): Stats {
+	return new Stats(pick(stat, ['dev', 'ino', 'nlink', 'mode', 'uid', 'gid', 'rdev', 'size', 'blksize', 'atimeMs', 'mtimeMs', 'ctimeMs', 'birthtimeMs']));
 }
 
 export function fstatSync(fd: number): Stats {
@@ -285,11 +284,11 @@ export function futimesSync(fd: number, atime: Date | number | string, mtime: Da
 	sys.futimes(fd, ms(atime), ms(mtime));
 }
 
-export function statfsSync(path: PathLike): StatFsFields {
+export function statfsSync(path: PathLike): StatFs {
 	return sys.statfs(p(path));
 }
 
-export function fstatfsSync(fd: number): StatFsFields {
+export function fstatfsSync(fd: number): StatFs {
 	return sys.fstatfs(fd);
 }
 
