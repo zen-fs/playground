@@ -45,14 +45,12 @@
 		"utilium": "^3.7.0"
 	},
 	"devDependencies": {
-		"@eslint/js": "^10.0.1",
 		"@types/node": "^26.0.0",
+		"@zenfs/devel": "^0.1.0",
 		"esbuild": "^0.28.0",
 		"eslint": "^10.1.0",
-		"globals": "^17.0.0",
 		"prettier": "^3.3.3",
-		"typescript": "^6.0.0",
-		"typescript-eslint": "^8.58.0"
+		"typescript": "^6.0.0"
 	},
 	"prettier": {
 		"singleQuote": true,
