@@ -1,7 +1,7 @@
 import { environ, spawn, wait } from '@zenfs/linux/uapi/process';
 import type * as child_process from 'node:child_process';
 
-type Options = child_process.ExecFileSyncOptions;
+type Options = child_process.ExecFileSyncOptions & Pick<child_process.SpawnSyncOptions, 'argv0'>;
 
 /**
  * Start a program and wait for it.
@@ -12,7 +12,7 @@ export function execFileSync(file: string, args?: readonly string[] | Options, o
 
 	const env = (opts.env as Record<string, string> | undefined) ?? environ();
 
-	const pid = spawn(file, [file, ...argv], env);
+	const pid = spawn(file, [opts.argv0 ?? file, ...argv], env);
 	const status = wait(pid);
 
 	if (status) throw Object.assign(new Error(`Command failed: ${[file, ...argv].join(' ')}`), { status, code: status });
