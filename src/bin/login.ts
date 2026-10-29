@@ -1,13 +1,16 @@
 import { execFileSync, type ExecFileSyncOptions, type SpawnSyncOptions } from 'child_process';
 import * as fs from 'fs';
 import { basename } from 'path';
+import { parseArgs } from 'util';
 
-const args = process.argv.slice(1);
+const {
+	positionals: [username],
+} = parseArgs({
+	// There are no passwords to check yet, so `-f` is accepted and changes nothing
+	options: { force: { short: 'f', type: 'boolean', default: false } },
+	allowPositionals: true,
+});
 
-// There are no passwords to check yet, so `-f` is accepted and changes nothing
-if (args[0] == '-f') args.shift();
-
-const [username] = args;
 if (!username) throw 'usage: login [-f] username';
 
 let entry: string[] | undefined;
