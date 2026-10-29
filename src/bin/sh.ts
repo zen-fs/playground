@@ -233,12 +233,12 @@ function login(): void {
 		who = undefined;
 	}
 
-	if (!who) return;
+	if (!who || vars.LOGNAME) return;
 
-	vars.USER ??= who.username;
-	vars.LOGNAME ??= who.username;
-	vars.HOME ??= who.homedir;
-	if (who.shell) vars.SHELL ??= who.shell;
+	vars.USER = who.username;
+	vars.LOGNAME = who.username;
+	vars.HOME = who.homedir;
+	if (who.shell) vars.SHELL = who.shell;
 
 	for (const key of ['USER', 'LOGNAME', 'HOME', 'SHELL']) if (vars[key]) builtins.export(key);
 }
@@ -256,8 +256,10 @@ const root = (process.geteuid?.() ?? 0) == 0;
 function location(): string {
 	const cwd = process.cwd();
 	const home = homedir();
-	if (!home || !cwd.startsWith(home)) return cwd;
-	return '~' + cwd.slice(home.length);
+	if (home.length < 2 || !cwd.startsWith(home)) return cwd;
+	const rest = cwd.slice(home.length);
+	if (rest && !rest.startsWith('/')) return cwd;
+	return '~' + rest;
 }
 
 function parts(): [string, string, string, string] {
