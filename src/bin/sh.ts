@@ -1,6 +1,6 @@
 import { execFileSync } from 'child_process';
 import * as fs from 'fs';
-import { homedir, hostname, userInfo } from 'os';
+import { homedir, hostname } from 'os';
 import * as path from 'path';
 import { styleText } from 'util';
 import { createShell } from 'utilium/shell';
@@ -202,6 +202,9 @@ function runLine(line: string) {
 
 const argv = process.argv.slice(1);
 
+const login = process.argv[0]?.startsWith('-') || argv[0] == '-l';
+if (argv[0] == '-l') argv.shift();
+
 if (argv[0] == '-c') {
 	positional = argv.slice(2);
 	run(argv[1] ?? '');
@@ -224,28 +227,7 @@ if (argv.length) {
 	process.exit(status);
 }
 
-/** What `login` puts in the environment before handing over, from the same place it takes it */
-function login(): void {
-	let who;
-	try {
-		who = userInfo();
-	} catch {
-		who = undefined;
-	}
-
-	if (!who || vars.LOGNAME) return;
-
-	vars.USER = who.username;
-	vars.LOGNAME = who.username;
-	vars.HOME = who.homedir;
-	if (who.shell) vars.SHELL = who.shell;
-
-	for (const key of ['USER', 'LOGNAME', 'HOME', 'SHELL']) if (vars[key]) builtins.export(key);
-}
-
-login();
-
-if (fs.existsSync('/etc/profile')) source('/etc/profile');
+if (login && fs.existsSync('/etc/profile')) source('/etc/profile');
 
 vars.HOSTNAME ??= hostname();
 builtins.export('HOSTNAME');
